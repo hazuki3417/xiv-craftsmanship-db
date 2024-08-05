@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  xiv-craftsmanship-db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: xiv-craftsmanship-db
+    hostname: xiv-craftsmanship-db
+    container_name: xiv-craftsmanship-db
+    restart: always
+    environment:
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: example
+    ports:
+      - "5432:5432"
