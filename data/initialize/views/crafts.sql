@@ -1,5 +1,5 @@
 -- public.crafts source
-CREATE MATERIALIZED VIEW public.crafts TABLESPACE pg_default AS
+CREATE MATERIALIZED VIEW public.crafts AS
 WITH
     crafts AS (
         SELECT DISTINCT

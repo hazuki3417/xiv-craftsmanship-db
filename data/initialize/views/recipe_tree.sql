@@ -1,5 +1,5 @@
 -- public.recipe_tree source
-CREATE MATERIALIZED VIEW public.recipe_tree TABLESPACE pg_default AS
+CREATE MATERIALIZED VIEW public.recipe_tree AS
 WITH RECURSIVE
     recipe_tree AS (
         SELECT

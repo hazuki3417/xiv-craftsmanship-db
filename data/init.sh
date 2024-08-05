@@ -7,10 +7,10 @@ SQL_FILES=(
   "$INIT_DIR/init.sql"
   "$INIT_DIR/tables/items.sql"
   "$INIT_DIR/tables/recipe.sql"
-  "$INIT_DIR/views/crafts.sql"
-  "$INIT_DIR/views/recipe_tree.sql"
   "$INIT_DIR/seeder/items.sql"
   "$INIT_DIR/seeder/recipe.sql"
+  "$INIT_DIR/views/crafts.sql"
+  "$INIT_DIR/views/recipe_tree.sql"
 )
 
 # 各SQLファイルを順番に実行
