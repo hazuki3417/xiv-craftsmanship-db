@@ -11,6 +11,7 @@ SQL_FILES=(
   "$INIT_DIR/seeder/recipe.sql"
   "$INIT_DIR/views/crafts.sql"
   "$INIT_DIR/views/material_tree.sql"
+  "$INIT_DIR/procedure/get_material_tree.sql"
 )
 
 # 各SQLファイルを順番に実行
