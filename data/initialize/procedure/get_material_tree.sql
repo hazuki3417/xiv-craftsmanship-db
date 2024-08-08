@@ -1,8 +1,6 @@
--- DROP FUNCTION public.get_material_tree(uuid);
-
 CREATE OR REPLACE FUNCTION public.get_material_tree(arg_parent_id uuid)
- RETURNS TABLE(parent_item_id uuid, parent_name text, child_item_id uuid, child_name text, unit integer, total integer, depth integer)
- LANGUAGE plpgsql
+RETURNS TABLE(parent_item_id uuid, parent_name text, child_item_id uuid, child_name text, unit integer, total integer, depth integer)
+LANGUAGE plpgsql
 AS $function$
 BEGIN
   RETURN QUERY
@@ -15,7 +13,8 @@ BEGIN
       ic.name AS child_name,
       r.quantity AS unit,
       r.quantity * 1 AS total,
-      1 AS depth
+      1 AS depth,
+      ARRAY[r.parent_item_id::text, r.child_item_id::text] AS path
     FROM
       recipe r
       JOIN items ip ON r.parent_item_id = ip.id
@@ -33,7 +32,8 @@ BEGIN
       ic.name AS child_name,
       r.quantity AS unit,
       r.quantity * it.total AS total,
-      it.depth + 1 AS depth
+      it.depth + 1 AS depth,
+      it.path || r.child_item_id::text
     FROM
       recipe r
       JOIN items ic ON r.child_item_id = ic.id
@@ -51,9 +51,7 @@ BEGIN
   FROM
     item_tree it
   ORDER BY
-    it.depth asc,
-    it.parent_name ASC,
-    it.child_name ASC;
+    it.path;
 END;
 $function$
 ;
