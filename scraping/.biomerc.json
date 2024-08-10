@@ -1,0 +1,6 @@
+{
+  "extends": "@biomejs/biome/recommended",
+  "rules": {
+    "example-rule": "off"
+  }
+}
