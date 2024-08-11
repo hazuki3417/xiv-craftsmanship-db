@@ -61,7 +61,7 @@ const getItems = async (page: Page): Promise<Item[]> => {
 			Items.push({
 				id: id,
 				name: name,
-				category1: "武器",
+				category1: "防具",
 				category2: category2,
 				level: parseInt(level),
 			});
