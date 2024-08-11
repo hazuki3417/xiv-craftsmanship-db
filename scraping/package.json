@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "biome lint",
-    "format": "biome format"
+    "format": "biome format --write src"
   },
   "dependencies": {
     "@biomejs/biome": "^1.8.3",
