@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer";
+import { writeFile } from 'fs/promises';
 
 // リナシータ・ソード
 // item id  : d0c065f308a
@@ -139,6 +140,22 @@ import puppeteer from "puppeteer";
 		const recipe = await getRecipe("04900323373");
 		return recipe;
 	});
+  const writeJsonToFile = async (filePath: string, jsonObject: object): Promise<void> => {
+    try {
+      // JSONオブジェクトを文字列に変換
+      const jsonString = JSON.stringify(jsonObject, null, 2);
+
+      // ファイルに書き込む
+      await writeFile(filePath, jsonString, 'utf8');
+
+      console.log('File written successfully');
+    } catch (error) {
+      console.error('Error writing file:', error);
+    }
+  };
+
+  await writeJsonToFile('04900323373.json', data);
+
 	console.log(data);
 
 	await browser.close();
