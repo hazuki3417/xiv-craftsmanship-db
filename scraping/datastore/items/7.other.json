@@ -1,0 +1,352 @@
+[
+  {
+    "id": "27623d06a42",
+    "name": "ファイアシャード",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "f2dfd367f1e",
+    "name": "アイスシャード",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "843899bc8f6",
+    "name": "ウィンドシャード",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "ef4394eb49b",
+    "name": "アースシャード",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "6fed6129996",
+    "name": "ライトニングシャード",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "9f967ad6b5a",
+    "name": "ウォーターシャード",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "75403105d7f",
+    "name": "ファイアクリスタル",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "2d800a06851",
+    "name": "アイスクリスタル",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "5db117cd77b",
+    "name": "ウィンドクリスタル",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "ff6eae7bdcb",
+    "name": "アースクリスタル",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "b21a951916e",
+    "name": "ライトニングクリスタル",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "44d3f4cb26b",
+    "name": "ウォータークリスタル",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "e8ccb4b1f81",
+    "name": "ファイアクラスター",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "4dbe0ec0a76",
+    "name": "アイスクラスター",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "b61cbfd2d6e",
+    "name": "ウィンドクラスター",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "c97c6825890",
+    "name": "アースクラスター",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "06061fd121b",
+    "name": "ライトニングクラスター",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "e3d82488f80",
+    "name": "ウォータークラスター",
+    "category1": "その他",
+    "category2": "クリスタル",
+    "level": null
+  },
+  {
+    "id": "88469f72142",
+    "name": "ライオンズメイン・ベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "082f338f380",
+    "name": "ライオンリージュ・ベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "d33792febed",
+    "name": "ベアズモウ・ベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "1184738f232",
+    "name": "ベアリージュ・ベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "bd2505cf298",
+    "name": "リンクスファング・ベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "13fe89cd12b",
+    "name": "リンクスリージュ・ベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "a268c05be65",
+    "name": "アラガンプレートベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "8159bbc3b01",
+    "name": "ハイアラガン・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "913e6a52084",
+    "name": "バハムート・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "57f251cf619",
+    "name": "プロトゴルド・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "64cd05fb02c",
+    "name": "ゴルディオン・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "7956b01e9f6",
+    "name": "プロトミダース・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "943f93be60b",
+    "name": "ミダース・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "39bc280d714",
+    "name": "プロトアレキ・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "ee3a2ee1009",
+    "name": "アレキサンダー・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "7b50315d0b8",
+    "name": "源氏之帯【武士】",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "69c3c0c9854",
+    "name": "源太帯【武士】",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "15abaa144d6",
+    "name": "ダイヤ・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "f4d5f114482",
+    "name": "カーボランダム・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "0f44a202d78",
+    "name": "オメガ・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "d164be93b99",
+    "name": "オミクロン・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "0cc491e36e6",
+    "name": "エデングレース・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "e6d0fdfa2c6",
+    "name": "エデンゲート・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "b91f8b9dd5a",
+    "name": "エデンコーラス・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "f0072422290",
+    "name": "エデンコール・ディフェンダータセット",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "e3c5de4433d",
+    "name": "エデンモーン・ディフェンダーレザーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "13faef17039",
+    "name": "エデンマーシー・ディフェンダーレザーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "cfdae49b362",
+    "name": "ベルト・オブ・ライト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "e0460a7871c",
+    "name": "ティターンプレートベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "81b00ccad76",
+    "name": "デモンズ・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "ad791c65fe2",
+    "name": "アーク・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  },
+  {
+    "id": "4c29e271a75",
+    "name": "ヤフェーム・ディフェンダーベルト",
+    "category1": "その他",
+    "category2": "排出停止アイテム",
+    "level": null
+  }
+]
