@@ -1,4 +1,4 @@
-import puppeteer, {Page} from "puppeteer";
+import puppeteer, { Page } from "puppeteer";
 import { writeFile } from "fs/promises";
 
 /**
@@ -24,23 +24,37 @@ type Item = {
 
 const getItems = async (page: Page): Promise<Item[]> => {
 	return await page.evaluate(async () => {
-		const elements = document.querySelectorAll("#character > tbody > tr")
+		const elements = document.querySelectorAll("#character > tbody > tr");
 		const Items: Item[] = [];
 
 		elements.forEach((element) => {
-
-			const href = element.querySelector("td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a").getAttribute("href")
+			const href = element
+				.querySelector(
+					"td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
+				)
+				.getAttribute("href");
 
 			// NOTE: {id}部分を抽出する
 			// 例: /lodestone/playguide/db/item/{id}/
-			const parts = href.split('/');
+			const parts = href.split("/");
 			const id = parts[parts.length - 2];
 
-			const name = element.querySelector("td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a").innerHTML
-			const category2 = element.querySelector("td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > span > a").innerHTML
-			const level = element.querySelector("td.db-table__body--dark.db-table__body--center").innerHTML
+			const name = element.querySelector(
+				"td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
+			).innerHTML;
+			const category2 = element.querySelector(
+				"td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > span > a",
+			).innerHTML;
+			const level = element.querySelector(
+				"td.db-table__body--dark.db-table__body--center",
+			).innerHTML;
 
-			if (id === undefined || name === undefined || category2 === undefined || level === undefined) {
+			if (
+				id === undefined ||
+				name === undefined ||
+				category2 === undefined ||
+				level === undefined
+			) {
 				throw new Error("parse error: getItems");
 			}
 
@@ -80,11 +94,10 @@ const writeJsonToFile = async (
 	const page = await browser.newPage();
 	await page.setViewport({ width: 1080, height: 1024 });
 
-
 	let items: Item[] = [];
 	const limit = 101;
 	for (let pageNumber = 1; pageNumber <= limit; pageNumber++) {
-		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=6&page=${pageNumber}`
+		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=6&page=${pageNumber}`;
 		await page.goto(url);
 		await new Promise((resolve) => setTimeout(resolve, 5000));
 		const currentItems = await getItems(page);
@@ -93,7 +106,6 @@ const writeJsonToFile = async (
 	}
 
 	await writeJsonToFile("datastore/items/6.materials.json", items);
-
 
 	await browser.close();
 })();
