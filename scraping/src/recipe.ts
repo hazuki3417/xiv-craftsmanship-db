@@ -1,129 +1,145 @@
-import puppeteer from 'puppeteer';
+import puppeteer from "puppeteer";
 
+// リナシータ・ソード
+// item id  : d0c065f308a
+// recipe id: d1e5a9feff6
 
+// イルメナイト
+// item id : 9288158e865
+// recipe id: 8aff7cd4555（鍛冶）
+// recipe id: 63ac7beb52b（甲冑）
+
+// recipe側に記述されてるのはitem idの方
 
 // main function
 (async () => {
+	const url =
+		"https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/04900323373/";
+	const browser = await puppeteer.launch({ headless: false });
+	const page = await browser.newPage();
+	await page.goto(url);
+	await page.setViewport({ width: 1080, height: 1024 });
+	await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  const url = 'https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/04900323373/'
-  const browser = await puppeteer.launch({headless: false});
-  const page = await browser.newPage();
-  await page.goto(url);
-  await page.setViewport({width: 1080, height: 1024});
-  await new Promise(resolve => setTimeout(resolve, 3000));
+	const data = await page.evaluate(async () => {
+		type Recipe = {
+			id: string;
+			name: string;
+			level: number;
+			pieces: number; // 完成個数
+			materials: Material[];
+			crystals: Crystal[];
+		};
 
- const data = await page.evaluate(async () => {
+		type Material = {
+			id: string;
+			name: string;
+			quantity: number;
+		};
 
-  type Recipe = {
-    id: string,
-    name: string,
-    level: number,
-    pieces: number, // 完成個数
-    materials: Material[],
-    crystals: Crystal[]
-  }
+		type Crystal = {
+			id: string;
+			name: string;
+			quantity: number;
+		};
 
-  type Material = {
-    id: string,
-    name: string,
-    quantity: number
-  }
+		const getRecipe = async (id: string): Promise<Recipe> => {
+			const recipe = document.querySelector(
+				"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__item__header.clearfix > div.db-view__item__text",
+			);
 
-  type Crystal = {
-    id: string,
-    name: string,
-    quantity: number
-  }
+			if (recipe === null) {
+				throw new Error("parse error: getRecipe");
+			}
 
-  const getRecipe = async (id: string): Promise<Recipe> => {
-    const recipe = document.querySelector("#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__item__header.clearfix > div.db-view__item__text")
+			const nameElement = recipe.querySelector("h2");
+			if (nameElement === null) {
+				throw new Error("parse error: getRecipe");
+			}
+			const name = nameElement.innerText;
 
-    if (recipe === null) {
-      throw new Error('parse error: getRecipe');
-    }
+			const levelElement = recipe.querySelector(
+				'span[class="db-view__item__text__level__num"]',
+			);
+			if (levelElement === null) {
+				throw new Error("parse error: getRecipe");
+			}
+			const level = levelElement.innerHTML;
 
-    const nameElement = recipe.querySelector('h2')
-    if (nameElement === null) {
-      throw new Error('parse error: getRecipe');
-    }
-    const name = nameElement.innerText
+			const piecesElement = document.querySelector(
+				"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div.db-tree__data_header > div > p > span",
+			);
 
-    const levelElement = recipe.querySelector('span[class="db-view__item__text__level__num"]')
-    if (levelElement === null) {
-      throw new Error('parse error: getRecipe');
-    }
-    const level = levelElement.innerHTML
+			if (piecesElement === null) {
+				throw new Error("parse error: getRecipe");
+			}
 
-    const piecesElement = document.querySelector("#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div.db-tree__data_header > div > p > span")
+			const pieces = piecesElement.innerHTML;
 
-    if (piecesElement === null) {
-      throw new Error('parse error: getRecipe');
-    }
+			return {
+				id: id,
+				name: name,
+				level: parseInt(level, 10),
+				pieces: parseInt(pieces, 10),
+				materials: await getMaterials(),
+				crystals: await getCrystals(),
+			};
+		};
 
-    const pieces = piecesElement.innerHTML
+		const getMaterials = async (): Promise<Material[]> => {
+			const elements = document.querySelectorAll(
+				"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(3) > div > div.js__material",
+			);
+			const materials: Material[] = [];
 
-    return {
-      id: id,
-      name: name,
-      level: parseInt(level, 10),
-      pieces: parseInt(pieces, 10),
-      materials: await getMaterials(),
-      crystals: await getCrystals()
-    }
-  }
+			elements.forEach((element) => {
+				const id = element.getAttribute("data-key");
+				const name = element.getAttribute("data-name");
+				const quantity = element.getAttribute("data-num");
 
-  const getMaterials = async (): Promise<Material[]> => {
-    const elements = document.querySelectorAll("#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(3) > div > div.js__material");
-    const materials: Material[] = [];
+				if (id === null || name === null || quantity === null) {
+					throw new Error("parse error: getMaterials");
+				}
 
-    elements.forEach((element) => {
-      const id = element.getAttribute('data-key');
-      const name = element.getAttribute('data-name');
-      const quantity = element.getAttribute('data-num');
+				materials.push({
+					id: id,
+					name: name,
+					quantity: parseInt(quantity, 10),
+				});
+			});
 
-      if (id === null || name === null || quantity === null) {
-        throw new Error('parse error: getMaterials');
-      }
+			return materials;
+		};
 
-      materials.push({
-        id: id,
-        name: name,
-        quantity: parseInt(quantity, 10)
-      });
-    });
+		const getCrystals = async (): Promise<Crystal[]> => {
+			const elements = document.querySelectorAll(
+				"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(4) > div > div.js__material",
+			);
+			const crystals: Crystal[] = [];
 
-    return materials;
-  }
+			elements.forEach((element) => {
+				const id = element.getAttribute("data-key");
+				const name = element.getAttribute("data-name");
+				const quantity = element.getAttribute("data-num");
 
-  const getCrystals = async (): Promise<Crystal[]> => {
-    const elements = document.querySelectorAll("#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(4) > div > div.js__material");
-    const crystals: Crystal[] = [];
+				if (id === null || name === null || quantity === null) {
+					throw new Error("parse error: getCrystals");
+				}
 
-    elements.forEach((element) => {
-      const id = element.getAttribute('data-key');
-      const name = element.getAttribute('data-name');
-      const quantity = element.getAttribute('data-num');
+				crystals.push({
+					id: id,
+					name: name,
+					quantity: parseInt(quantity, 10),
+				});
+			});
 
-      if (id === null || name === null || quantity === null) {
-        throw new Error('parse error: getCrystals');
-      }
+			return crystals;
+		};
 
-      crystals.push({
-        id: id,
-        name: name,
-        quantity: parseInt(quantity, 10)
-      });
-    });
+		const recipe = await getRecipe("04900323373");
+		return recipe;
+	});
+	console.log(data);
 
-    return crystals;
-  }
-
-
-    const recipe = await getRecipe('04900323373');
-    return recipe
-  });
-  console.log(data);
-
-
-  await browser.close();
+	await browser.close();
 })();
