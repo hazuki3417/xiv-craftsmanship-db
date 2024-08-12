@@ -1,11 +1,12 @@
--- public.recipe definition
+-- public.item_tree definition
 -- Drop table
--- DROP TABLE public.recipe;
+-- DROP TABLE public.item_tree;
 CREATE TABLE
-    public.recipe (
+    public.item_tree (
         parent_item_id text NOT NULL,
         child_item_id text NOT NULL,
-        quantity int4 DEFAULT 1 NULL,
+        quantity int4 DEFAULT 1 NOT NULL,
+        "type" text NOT NULL,
         CONSTRAINT check_positive_number CHECK ((quantity > 0)),
         CONSTRAINT recipe_unique UNIQUE (parent_item_id, child_item_id),
         CONSTRAINT recipe_child_item_id_fk FOREIGN KEY (child_item_id) REFERENCES public.items (id),
