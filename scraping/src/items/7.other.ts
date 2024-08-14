@@ -95,7 +95,7 @@ const writeJsonToFile = async (
 	await page.setViewport({ width: 1080, height: 1024 });
 
 	let items: Item[] = [];
-	const limit = 1; // 2ページ以降は排出停止アイテムなので取得しない
+	const limit = 212;
 	for (let pageNumber = 1; pageNumber <= limit; pageNumber++) {
 		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=7&page=${pageNumber}`;
 		await page.goto(url);

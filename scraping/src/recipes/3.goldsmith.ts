@@ -196,7 +196,7 @@ const writeJsonToFile = async (
 		const link = recipeLinks[i];
 		const url = `https://jp.finalfantasyxiv.com${link}`;
 		await page.goto(url);
-		await new Promise((resolve) => setTimeout(resolve, 3000));
+		await new Promise((resolve) => setTimeout(resolve, 5000));
 
 		const materials = await getMaterials(page);
 		const crystals = await getCrystals(page);
