@@ -1,12 +1,12 @@
--- DROP FUNCTION public.get_materials(uuid);
+-- DROP FUNCTION public.get_materials(text);
 
-CREATE OR REPLACE FUNCTION public.get_materials(arg_parent_id uuid)
- RETURNS TABLE(parent_item_id uuid, parent_name text, child_item_id uuid, child_name text, unit integer, total integer)
+CREATE OR REPLACE FUNCTION public.get_materials(arg_parent_id text)
+ RETURNS TABLE(parent_item_id text, parent_name text, child_item_id text, child_name text, unit integer, total integer)
  LANGUAGE plpgsql
 AS $function$
 BEGIN
   RETURN QUERY
-  WITH RECURSIVE item_tree AS (
+  WITH RECURSIVE material_tree AS (
     -- 初期の親アイテムとその直接の子アイテムを取得
     SELECT
       r.parent_item_id,
@@ -16,7 +16,7 @@ BEGIN
       r.quantity AS unit,
       r.quantity * 1 AS total
     FROM
-      recipe r
+      item_tree r
       JOIN items ip ON r.parent_item_id = ip.id
       JOIN items ic ON r.child_item_id = ic.id
     WHERE
@@ -33,10 +33,10 @@ BEGIN
       r.quantity AS unit,
       r.quantity * it.total AS total
     FROM
-      recipe r
+      item_tree r
       JOIN items ic ON r.child_item_id = ic.id
       JOIN items ip ON r.parent_item_id = ip.id
-      JOIN item_tree it ON r.parent_item_id = it.child_item_id
+      JOIN material_tree it ON r.parent_item_id = it.child_item_id
   )
   SELECT
     it.parent_item_id,
@@ -46,7 +46,7 @@ BEGIN
     it.unit,
     it.total
   FROM
-    item_tree it
+    material_tree it
   ORDER BY
     it.parent_item_id, it.child_item_id;
 END;
