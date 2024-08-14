@@ -1,20 +1,18 @@
 -- public.crafts source
-CREATE MATERIALIZED VIEW public.crafts AS
-WITH
-    crafts AS (
-        SELECT DISTINCT
-            recipe.parent_item_id
-        FROM
-            recipe
-    )
+CREATE MATERIALIZED VIEW public.crafts TABLESPACE pg_default AS
 SELECT
-    crafts.parent_item_id AS item_id,
-    items.name AS item_name
+    r.id AS recipe_id,
+    i.id AS item_id,
+    i.name,
+    i.level AS item_level,
+    r.pieces,
+    r.job,
+    r.level AS recipe_level
 FROM
-    items
-    JOIN crafts ON items.id = crafts.parent_item_id
+    recipes r
+    JOIN items i ON r.item_id = i.id
 WITH
     DATA;
 
 -- View indexes:
-CREATE UNIQUE INDEX crafts_name_idx ON public.crafts USING btree (item_name);
+CREATE INDEX crafts_name_idx ON public.crafts USING btree (name);
