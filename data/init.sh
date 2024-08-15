@@ -4,11 +4,11 @@ set -e
 INIT_DIR="/docker-entrypoint-initdb.d/initialize"
 
 SQL_FILES=(
-  "$INIT_DIR/init.sql"
   "$INIT_DIR/tables/items.sql"
   "$INIT_DIR/tables/recipes.sql"
   "$INIT_DIR/tables/item_tree.sql"
   "$INIT_DIR/seeder/items.sql"
+  "$INIT_DIR/procedure/get_materials.sql"
 )
 
 # 各SQLファイルを順番に実行
