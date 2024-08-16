@@ -216,7 +216,7 @@ const writeJsonToFile = async (
 		console.log(id);
 	}
 
-	await writeJsonToFile("datastore/recipes/1.blacksmith/recipes.json", recipes);
+	await writeJsonToFile("datastore/recipes/1.blacksmith.json", recipes);
 
 	await browser.close();
 })();
