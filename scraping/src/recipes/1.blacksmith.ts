@@ -184,7 +184,7 @@ const writeJsonToFile = async (
 	for (; pageNumber <= limit; pageNumber++) {
 		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/?category2=${category2}&page=${pageNumber}`;
 		await page.goto(url, {timeout: 60000});
-		await new Promise((resolve) => setTimeout(resolve, 5000));
+		await new Promise((resolve) => setTimeout(resolve, 3000));
 
 		const currentRecipeLinks = await getRecipLinks(page);
 		recipeLinks = [...recipeLinks, ...currentRecipeLinks];
@@ -197,7 +197,7 @@ const writeJsonToFile = async (
 		const link = recipeLinks[i];
 		const url = `https://jp.finalfantasyxiv.com${link}`;
 		await page.goto(url, {timeout: 60000});
-		await new Promise((resolve) => setTimeout(resolve, 5000));
+		await new Promise((resolve) => setTimeout(resolve, 3000));
 
 		const materials = await getMaterials(page);
 		const crystals = await getCrystals(page);
@@ -216,7 +216,7 @@ const writeJsonToFile = async (
 		console.log(id);
 	}
 
-	await writeJsonToFile("datastore/recipes/1.blacksmith/data.json", recipes);
+	await writeJsonToFile("datastore/recipes/1.blacksmith/recipes.json", recipes);
 
 	await browser.close();
 })();
