@@ -175,16 +175,15 @@ const writeJsonToFile = async (
 	await page.setViewport({ width: 1080, height: 1024 });
 
 	let recipeLinks: string[] = [];
-	let pageNumber = 3;
+
 	const limit = 34;
-	// const limit = 1;
 	const category2 = 1;
 
 	// recipeのリンクを収集
-	for (; pageNumber <= limit; pageNumber++) {
+	for (let pageNumber = 1; pageNumber <= limit; pageNumber++) {
 		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/?category2=${category2}&page=${pageNumber}`;
 		await page.goto(url, {timeout: 60000});
-		await new Promise((resolve) => setTimeout(resolve, 3000));
+		await new Promise((resolve) => setTimeout(resolve, 1500));
 
 		const currentRecipeLinks = await getRecipLinks(page);
 		recipeLinks = [...recipeLinks, ...currentRecipeLinks];
@@ -197,7 +196,7 @@ const writeJsonToFile = async (
 		const link = recipeLinks[i];
 		const url = `https://jp.finalfantasyxiv.com${link}`;
 		await page.goto(url, {timeout: 60000});
-		await new Promise((resolve) => setTimeout(resolve, 3000));
+		await new Promise((resolve) => setTimeout(resolve, 1500));
 
 		const materials = await getMaterials(page);
 		const crystals = await getCrystals(page);

@@ -184,7 +184,7 @@ const writeJsonToFile = async (
 		// page loop
 		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/?category2=${category2}&page=${pageNumber}`;
 		await page.goto(url, {timeout: 60000});
-		await new Promise((resolve) => setTimeout(resolve, 5000));
+		await new Promise((resolve) => setTimeout(resolve, 1500));
 
 		const currentRecipeLinks = await getRecipLinks(page);
 		recipeLinks = [...recipeLinks, ...currentRecipeLinks];
@@ -196,7 +196,7 @@ const writeJsonToFile = async (
 			const link = recipeLinks[i];
 			const url = `https://jp.finalfantasyxiv.com${link}`;
 			await page.goto(url, {timeout: 60000});
-			await new Promise((resolve) => setTimeout(resolve, 5000));
+			await new Promise((resolve) => setTimeout(resolve, 1500));
 
 			const materials = await getMaterials(page);
 			const crystals = await getCrystals(page);
