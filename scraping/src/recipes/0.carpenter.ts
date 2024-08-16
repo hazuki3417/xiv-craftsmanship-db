@@ -175,47 +175,47 @@ const writeJsonToFile = async (
 	await page.setViewport({ width: 1080, height: 1024 });
 
 	let recipeLinks: string[] = [];
-	let pageNumber = 27;
+
 	const limit = 27;
-	// const limit = 1;
 	const category2 = 0;
 
-	// for (; pageNumber <= limit; pageNumber++) {
-		// page loop
+	// recipeのリンクを収集
+	for (let pageNumber = 1; pageNumber <= limit; pageNumber++) {
 		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/?category2=${category2}&page=${pageNumber}`;
-		await page.goto(url, {timeout: 60000});
+		await page.goto(url);
 		await new Promise((resolve) => setTimeout(resolve, 1500));
 
 		const currentRecipeLinks = await getRecipLinks(page);
 		recipeLinks = [...recipeLinks, ...currentRecipeLinks];
+	}
 
-		console.log('page number: ', pageNumber)
+	// console.log(recipeLinks);
 
-		let recipes: Recipe[] = [];
-		for (let i = 0; i < recipeLinks.length; i++) {
-			const link = recipeLinks[i];
-			const url = `https://jp.finalfantasyxiv.com${link}`;
-			await page.goto(url, {timeout: 60000});
-			await new Promise((resolve) => setTimeout(resolve, 1500));
+	let recipes: Recipe[] = [];
+	for (let i = 0; i < recipeLinks.length; i++) {
+		const link = recipeLinks[i];
+		const url = `https://jp.finalfantasyxiv.com${link}`;
+		await page.goto(url);
+		await new Promise((resolve) => setTimeout(resolve, 1500));
 
-			const materials = await getMaterials(page);
-			const crystals = await getCrystals(page);
-			const recipe = await getRecipe(page);
+		const materials = await getMaterials(page);
+		const crystals = await getCrystals(page);
+		const recipe = await getRecipe(page);
 
-			// NOTE: {id}部分を抽出する
-			// 例: /lodestone/playguide/db/item/{id}/
-			const parts = link.split("/");
-			const id = parts[parts.length - 2];
+		// NOTE: {id}部分を抽出する
+		// 例: /lodestone/playguide/db/item/{id}/
+		const parts = link.split("/");
+		const id = parts[parts.length - 2];
 
-			recipe.id = id;
-			recipe.materials = materials;
-			recipe.crystals = crystals;
+		recipe.id = id;
+		recipe.materials = materials;
+		recipe.crystals = crystals;
 
-			recipes.push(recipe);
-			console.log('recipe id: ', id);
-		}
-		await writeJsonToFile(`datastore/recipes/0.carpenter/${pageNumber}.json`, recipes);
-	// }
+		recipes.push(recipe);
+		console.log(id);
+	}
+
+	await writeJsonToFile("datastore/recipes/0.carpenter.json", recipes);
 
 	await browser.close();
 })();
