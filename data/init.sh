@@ -11,6 +11,7 @@ SQL_FILES=(
   "$INIT_DIR/seeder/items.sql"
   "$INIT_DIR/seeder/recipes.sql"
   "$INIT_DIR/seeder/item_tree.sql"
+  "$INIT_DIR/views/crafts.sql"
   "$INIT_DIR/procedure/get_materials.sql"
 )
 
