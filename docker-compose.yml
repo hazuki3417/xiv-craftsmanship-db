@@ -4,7 +4,7 @@ services:
   xiv-craftsmanship-db:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./docker/develop/xiv-craftsmanship-db/Dockerfile
     image: xiv-craftsmanship-db
     hostname: xiv-craftsmanship-db
     container_name: xiv-craftsmanship-db
