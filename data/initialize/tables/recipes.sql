@@ -11,5 +11,5 @@ CREATE TABLE
         CONSTRAINT check_positive_level_number CHECK ((level > 0)),
         CONSTRAINT check_positive_pieces_number CHECK ((pieces > 0)),
         CONSTRAINT recipes_pk PRIMARY KEY (id),
-        CONSTRAINT recipes_items_fk FOREIGN KEY (id) REFERENCES public.items (id)
+        CONSTRAINT recipes_items_fk FOREIGN KEY (item_id) REFERENCES public.items (id)
     );

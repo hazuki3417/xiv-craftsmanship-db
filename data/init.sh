@@ -9,6 +9,8 @@ SQL_FILES=(
   "$INIT_DIR/tables/recipes.sql"
   "$INIT_DIR/tables/item_tree.sql"
   "$INIT_DIR/seeder/items.sql"
+  "$INIT_DIR/seeder/recipes.sql"
+  "$INIT_DIR/seeder/item_tree.sql"
   "$INIT_DIR/procedure/get_materials.sql"
 )
 

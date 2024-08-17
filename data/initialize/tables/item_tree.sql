@@ -9,9 +9,9 @@ CREATE TABLE
         child_item_id text NOT NULL,
         quantity int4 DEFAULT 1 NOT NULL,
         "type" text NOT NULL,
+        CONSTRAINT check_positive_number CHECK ((quantity > 0)),
         CONSTRAINT item_tree_unique UNIQUE (id),
         CONSTRAINT item_tree_recipes_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes (id),
         CONSTRAINT recipe_child_item_id_fk FOREIGN KEY (child_item_id) REFERENCES public.items (id),
-        CONSTRAINT recipe_parent_item_id_fk FOREIGN KEY (parent_item_id) REFERENCES public.items (id),
-        CONSTRAINT check_positive_number CHECK ((quantity > 0))
+        CONSTRAINT recipe_parent_item_id_fk FOREIGN KEY (parent_item_id) REFERENCES public.items (id)
     );
