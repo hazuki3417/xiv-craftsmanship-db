@@ -1,6 +1,6 @@
 -- DROP FUNCTION public.get_materials(text);
 
-CREATE OR REPLACE FUNCTION public.get_materials(arg_parent_id text)
+CREATE OR REPLACE FUNCTION public.get_materials(arg_recipe_id text)
  RETURNS TABLE(tree_id text, parent_item_id text, parent_item_name text, child_item_id text, child_item_name text, unit integer, total integer, child_item_type text)
  LANGUAGE plpgsql
 AS $function$
@@ -22,7 +22,7 @@ BEGIN
       JOIN items ip ON r.parent_item_id = ip.id
       JOIN items ic ON r.child_item_id = ic.id
     WHERE
-      r.parent_item_id = arg_parent_id
+      r.recipe_id = arg_recipe_id
 
     UNION ALL
 
