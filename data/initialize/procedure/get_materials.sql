@@ -1,7 +1,7 @@
 -- DROP FUNCTION public.get_materials(text);
 
 CREATE OR REPLACE FUNCTION public.get_materials(arg_recipe_id text)
- RETURNS TABLE(tree_id text, parent_item_id text, parent_item_name text, child_item_id text, child_item_name text, unit integer, total integer, child_item_type text)
+ RETURNS TABLE(tree_id text, recipe_id text, parent_item_id text, parent_item_name text, child_item_id text, child_item_name text, unit integer, total integer, child_item_type text)
  LANGUAGE plpgsql
 AS $function$
 BEGIN
@@ -10,6 +10,7 @@ BEGIN
     -- 初期の親アイテムとその直接の子アイテムを取得
     SELECT
       r.id as tree_id,
+      r.recipe_id,
       r.parent_item_id,
       ip.name AS parent_item_name,
       r.child_item_id,
@@ -29,6 +30,7 @@ BEGIN
     -- 再帰的にツリーをたどり、全ての子アイテムを取得
     SELECT
       r.id as tree_id,
+      it.recipe_id,
       r.parent_item_id,
       ip.name AS parent_item_name,
       r.child_item_id,
@@ -44,6 +46,7 @@ BEGIN
   )
   SELECT
     it.tree_id,
+    it.recipe_id,
     it.parent_item_id,
     it.parent_item_name,
     it.child_item_id,
