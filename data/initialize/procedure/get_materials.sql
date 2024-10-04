@@ -1,4 +1,4 @@
-DROP FUNCTION public.get_materials(text);
+-- DROP FUNCTION public.get_materials(text);
 
 CREATE OR REPLACE FUNCTION public.get_materials(arg_recipe_id text)
  RETURNS TABLE(parent_item_id text, parent_item_type text, parent_item_name text, child_item_id text, child_item_type text, child_item_name text, quantity integer)
