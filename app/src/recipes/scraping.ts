@@ -1,14 +1,16 @@
 import puppeteer, { Page } from "puppeteer-core";
 import { Args } from "./types.js";
-import { writeJsonToFile } from "../utils/file.js";
-import { wait } from "../utils/wait.js";
 import {
   PUPPETEER_LAUNCH_OPTION,
   PUPPETEER_PAGE_VIEWPORT,
   PUPPETEER_USER_AGENT,
 } from "../constants.js";
-import { calcTotalPage } from "../utils/calc.js";
-import { logError } from "../utils/log.js";
+import {
+  calcTotalPage,
+  logError,
+  wait,
+  writeJsonToFile,
+} from "../utils/index.js";
 import { type Recipe, type Material, type Crystal } from "./../types/index.js";
 
 /**
