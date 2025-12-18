@@ -1,6 +1,6 @@
 import puppeteer, { Page } from "puppeteer";
-import { writeJsonToFile } from "@/utils";
-import { type Item } from "@/types";
+import { writeJsonToFile } from "./../utils/index.js";
+import { type Item } from "./../types/index.js";
 
 /**
  * NOTE: 抽出するもの

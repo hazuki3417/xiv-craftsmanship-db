@@ -1,1 +1,1 @@
-export { writeJsonToFile } from "./file";
+export { writeJsonToFile } from "./file.js";
