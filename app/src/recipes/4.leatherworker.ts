@@ -14,208 +14,208 @@ import { writeFile } from "fs/promises";
  * NOTE: コードの共通化はやったほうがいいけど、優先度は低いので気が向いたときにやる。
  */
 const getRecipLinks = async (page: Page): Promise<string[]> => {
-	return await page.evaluate(async () => {
-		const elements = document.querySelectorAll("#character > tbody > tr");
+  return await page.evaluate(async () => {
+    const elements = document.querySelectorAll("#character > tbody > tr");
 
-		const links: string[] = [];
+    const links: string[] = [];
 
-		elements.forEach((element) => {
-			const href = element
-				.querySelector(
-					"td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
-				)
-				.getAttribute("href");
-			links.push(href);
-		});
-		return links;
-	});
+    elements.forEach((element) => {
+      const href = element
+        .querySelector(
+          "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
+        )
+        .getAttribute("href");
+      links.push(href);
+    });
+    return links;
+  });
 };
 
 type Recipe = {
-	id: string;
-	name: string;
-	level: number;
-	pieces: number; // 完成個数
-	materials: Material[];
-	crystals: Crystal[];
+  id: string;
+  name: string;
+  level: number;
+  pieces: number; // 完成個数
+  materials: Material[];
+  crystals: Crystal[];
 };
 
 type Material = {
-	id: string;
-	name: string;
-	quantity: number;
+  id: string;
+  name: string;
+  quantity: number;
 };
 
 type Crystal = {
-	id: string;
-	name: string;
-	quantity: number;
+  id: string;
+  name: string;
+  quantity: number;
 };
 
 const getMaterials = async (page: Page): Promise<Material[]> => {
-	return await page.evaluate(async () => {
-		const elements = document.querySelectorAll(
-			"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(3) > div > div.js__material",
-		);
-		const materials: Material[] = [];
+  return await page.evaluate(async () => {
+    const elements = document.querySelectorAll(
+      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(3) > div > div.js__material",
+    );
+    const materials: Material[] = [];
 
-		elements.forEach((element) => {
-			const id = element.getAttribute("data-key");
-			const name = element.getAttribute("data-name");
-			const quantity = element.getAttribute("data-num");
+    elements.forEach((element) => {
+      const id = element.getAttribute("data-key");
+      const name = element.getAttribute("data-name");
+      const quantity = element.getAttribute("data-num");
 
-			if (id === null || name === null || quantity === null) {
-				throw new Error("parse error: getMaterials");
-			}
+      if (id === null || name === null || quantity === null) {
+        throw new Error("parse error: getMaterials");
+      }
 
-			materials.push({
-				id: id,
-				name: name,
-				quantity: parseInt(quantity, 10),
-			});
-		});
+      materials.push({
+        id: id,
+        name: name,
+        quantity: parseInt(quantity, 10),
+      });
+    });
 
-		return materials;
-	});
+    return materials;
+  });
 };
 
 const getCrystals = async (page: Page): Promise<Crystal[]> => {
-	return await page.evaluate(async () => {
-		const elements = document.querySelectorAll(
-			"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(4) > div > div.js__material",
-		);
-		const crystals: Crystal[] = [];
+  return await page.evaluate(async () => {
+    const elements = document.querySelectorAll(
+      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(4) > div > div.js__material",
+    );
+    const crystals: Crystal[] = [];
 
-		elements.forEach((element) => {
-			const id = element.getAttribute("data-key");
-			const name = element.getAttribute("data-name");
-			const quantity = element.getAttribute("data-num");
+    elements.forEach((element) => {
+      const id = element.getAttribute("data-key");
+      const name = element.getAttribute("data-name");
+      const quantity = element.getAttribute("data-num");
 
-			if (id === null || name === null || quantity === null) {
-				throw new Error("parse error: getCrystals");
-			}
+      if (id === null || name === null || quantity === null) {
+        throw new Error("parse error: getCrystals");
+      }
 
-			crystals.push({
-				id: id,
-				name: name,
-				quantity: parseInt(quantity, 10),
-			});
-		});
+      crystals.push({
+        id: id,
+        name: name,
+        quantity: parseInt(quantity, 10),
+      });
+    });
 
-		return crystals;
-	});
+    return crystals;
+  });
 };
 
 const getRecipe = async (page: Page): Promise<Recipe> => {
-	return await page.evaluate(async () => {
-		const recipe = document.querySelector(
-			"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__item__header.clearfix > div.db-view__item__text",
-		);
+  return await page.evaluate(async () => {
+    const recipe = document.querySelector(
+      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__item__header.clearfix > div.db-view__item__text",
+    );
 
-		if (recipe === null) {
-			throw new Error("parse error: getRecipe");
-		}
+    if (recipe === null) {
+      throw new Error("parse error: getRecipe");
+    }
 
-		const nameElement = recipe.querySelector("h2");
-		if (nameElement === null) {
-			throw new Error("parse error: getRecipe");
-		}
-		const name = nameElement.innerText;
+    const nameElement = recipe.querySelector("h2");
+    if (nameElement === null) {
+      throw new Error("parse error: getRecipe");
+    }
+    const name = nameElement.innerText;
 
-		const levelElement = recipe.querySelector(
-			'span[class="db-view__item__text__level__num"]',
-		);
-		if (levelElement === null) {
-			throw new Error("parse error: getRecipe");
-		}
-		const level = levelElement.innerHTML;
+    const levelElement = recipe.querySelector(
+      'span[class="db-view__item__text__level__num"]',
+    );
+    if (levelElement === null) {
+      throw new Error("parse error: getRecipe");
+    }
+    const level = levelElement.innerHTML;
 
-		const piecesElement = document.querySelector(
-			"#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div.db-tree__data_header > div > p > span",
-		);
+    const piecesElement = document.querySelector(
+      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div.db-tree__data_header > div > p > span",
+    );
 
-		if (piecesElement === null) {
-			throw new Error("parse error: getRecipe");
-		}
+    if (piecesElement === null) {
+      throw new Error("parse error: getRecipe");
+    }
 
-		const pieces = piecesElement.innerHTML;
+    const pieces = piecesElement.innerHTML;
 
-		return {
-			id: "",
-			name: name,
-			level: parseInt(level, 10),
-			pieces: parseInt(pieces, 10),
-			materials: [],
-			crystals: [],
-		};
-	});
+    return {
+      id: "",
+      name: name,
+      level: parseInt(level, 10),
+      pieces: parseInt(pieces, 10),
+      materials: [],
+      crystals: [],
+    };
+  });
 };
 
 const writeJsonToFile = async (
-	filePath: string,
-	jsonObject: object,
+  filePath: string,
+  jsonObject: object,
 ): Promise<void> => {
-	try {
-		// JSONオブジェクトを文字列に変換
-		const jsonString = JSON.stringify(jsonObject, null, 2);
+  try {
+    // JSONオブジェクトを文字列に変換
+    const jsonString = JSON.stringify(jsonObject, null, 2);
 
-		// ファイルに書き込む
-		await writeFile(filePath, jsonString, "utf8");
+    // ファイルに書き込む
+    await writeFile(filePath, jsonString, "utf8");
 
-		console.log("File written successfully");
-	} catch (error) {
-		console.error("Error writing file:", error);
-	}
+    console.log("File written successfully");
+  } catch (error) {
+    console.error("Error writing file:", error);
+  }
 };
 
 // main function
 (async () => {
-	const browser = await puppeteer.launch({ headless: true });
-	const page = await browser.newPage();
-	await page.setViewport({ width: 1080, height: 1024 });
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1080, height: 1024 });
 
-	let recipeLinks: string[] = [];
+  let recipeLinks: string[] = [];
 
-	const limit = 33;
-	const category2 = 4;
+  const limit = 33;
+  const category2 = 4;
 
-	// recipeのリンクを収集
-	for (let pageNumber = 1; pageNumber <= limit; pageNumber++) {
-		const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/?category2=${category2}&page=${pageNumber}`;
-		await page.goto(url);
-		await new Promise((resolve) => setTimeout(resolve, 1500));
+  // recipeのリンクを収集
+  for (let pageNumber = 1; pageNumber <= limit; pageNumber++) {
+    const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/recipe/?category2=${category2}&page=${pageNumber}`;
+    await page.goto(url);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-		const currentRecipeLinks = await getRecipLinks(page);
-		recipeLinks = [...recipeLinks, ...currentRecipeLinks];
-	}
+    const currentRecipeLinks = await getRecipLinks(page);
+    recipeLinks = [...recipeLinks, ...currentRecipeLinks];
+  }
 
-	// console.log(recipeLinks);
+  // console.log(recipeLinks);
 
-	let recipes: Recipe[] = [];
-	for (let i = 0; i < recipeLinks.length; i++) {
-		const link = recipeLinks[i];
-		const url = `https://jp.finalfantasyxiv.com${link}`;
-		await page.goto(url);
-		await new Promise((resolve) => setTimeout(resolve, 1500));
+  let recipes: Recipe[] = [];
+  for (let i = 0; i < recipeLinks.length; i++) {
+    const link = recipeLinks[i];
+    const url = `https://jp.finalfantasyxiv.com${link}`;
+    await page.goto(url);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-		const materials = await getMaterials(page);
-		const crystals = await getCrystals(page);
-		const recipe = await getRecipe(page);
+    const materials = await getMaterials(page);
+    const crystals = await getCrystals(page);
+    const recipe = await getRecipe(page);
 
-		// NOTE: {id}部分を抽出する
-		// 例: /lodestone/playguide/db/item/{id}/
-		const parts = link.split("/");
-		const id = parts[parts.length - 2];
+    // NOTE: {id}部分を抽出する
+    // 例: /lodestone/playguide/db/item/{id}/
+    const parts = link.split("/");
+    const id = parts[parts.length - 2];
 
-		recipe.id = id;
-		recipe.materials = materials;
-		recipe.crystals = crystals;
+    recipe.id = id;
+    recipe.materials = materials;
+    recipe.crystals = crystals;
 
-		recipes.push(recipe);
-		console.log(id);
-	}
+    recipes.push(recipe);
+    console.log(id);
+  }
 
-	await writeJsonToFile("datastore/recipes/4.leatherworker.json", recipes);
+  await writeJsonToFile("datastore/recipes/4.leatherworker.json", recipes);
 
-	await browser.close();
+  await browser.close();
 })();
