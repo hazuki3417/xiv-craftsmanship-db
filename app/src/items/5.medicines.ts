@@ -1,4 +1,4 @@
-import puppeteer, { Page } from "puppeteer";
+import puppeteer, { Page } from "puppeteer-core";
 import { writeJsonToFile } from "./../utils/index.js";
 import { type Item } from "./../types/index.js";
 
