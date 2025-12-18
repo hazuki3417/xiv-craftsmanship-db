@@ -1,5 +1,6 @@
 import puppeteer, { Page } from "puppeteer";
-import { writeFile } from "fs/promises";
+import { writeJsonToFile } from "@/utils";
+import { type Recipe, type Material, type Crystal } from "@/types";
 
 /**
  * NOTE: 抽出するもの
@@ -29,27 +30,6 @@ const getRecipLinks = async (page: Page): Promise<string[]> => {
     });
     return links;
   });
-};
-
-type Recipe = {
-  id: string;
-  name: string;
-  level: number;
-  pieces: number; // 完成個数
-  materials: Material[];
-  crystals: Crystal[];
-};
-
-type Material = {
-  id: string;
-  name: string;
-  quantity: number;
-};
-
-type Crystal = {
-  id: string;
-  name: string;
-  quantity: number;
 };
 
 const getMaterials = async (page: Page): Promise<Material[]> => {
@@ -149,23 +129,6 @@ const getRecipe = async (page: Page): Promise<Recipe> => {
       crystals: [],
     };
   });
-};
-
-const writeJsonToFile = async (
-  filePath: string,
-  jsonObject: object,
-): Promise<void> => {
-  try {
-    // JSONオブジェクトを文字列に変換
-    const jsonString = JSON.stringify(jsonObject, null, 2);
-
-    // ファイルに書き込む
-    await writeFile(filePath, jsonString, "utf8");
-
-    console.log("File written successfully");
-  } catch (error) {
-    console.error("Error writing file:", error);
-  }
 };
 
 // main function
