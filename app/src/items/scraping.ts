@@ -9,8 +9,7 @@ import {
   PUPPETEER_USER_AGENT,
 } from "../constants.js";
 import { calcTotalPage } from "../utils/calc.js";
-
-
+import { logError } from "../utils/log.js";
 
 /**
  * アイテムの総件数を取得
@@ -18,12 +17,20 @@ import { calcTotalPage } from "../utils/calc.js";
  * @returns
  */
 const getTotalCount = async (page: Page): Promise<number> => {
-  return await page.evaluate(async () => {
-    const element = document.querySelector("div.db-filter__row span.total")
-    const total = element.textContent
-    return Number(total)
-  })
-}
+  try {
+    return await page.evaluate(async () => {
+      const element = document.querySelector("div.db-filter__row span.total");
+      const total = element.textContent;
+      if (!element?.textContent) {
+        throw new Error("total count element not found");
+      }
+      return Number(total);
+    });
+  } catch (error) {
+    logError(error, { phase: "getTotalCount" });
+    throw error; // 致命的なので上位へ
+  }
+};
 
 /**
  * NOTE: 抽出するもの
@@ -38,90 +45,112 @@ const getTotalCount = async (page: Page): Promise<number> => {
  * NOTE: コードの共通化はやったほうがいいけど、優先度は低いので気が向いたときにやる。
  */
 
-
 type GetItemOption = {
   item: Partial<Item>;
 };
 
 const getItems = async (page: Page, option: GetItemOption): Promise<Item[]> => {
-  // NOTE: ここのスコープはconsole.log()が出力される
-  return await page.evaluate(async (option: GetItemOption) => {
-    // NOTE: ここのスコープはconsole.log()が出力されない
-    const elements = document.querySelectorAll("#character > tbody > tr");
-    const Items: Item[] = [];
+  try {
+    return await page.evaluate((option: GetItemOption) => {
+      const elements = document.querySelectorAll("#character > tbody > tr");
+      const items: Item[] = [];
 
-    elements.forEach((element) => {
-      const href = element
-        .querySelector(
-          "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
-        )
-        .getAttribute("href");
+      elements.forEach((element) => {
+        try {
+          const link = element.querySelector(
+            "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
+          ) as HTMLAnchorElement | null;
 
-      // NOTE: {id}部分を抽出する
-      // 例: /lodestone/playguide/db/item/{id}/
-      const parts = href.split("/");
-      const id = parts[parts.length - 2];
+          if (!link?.href) return;
 
-      const name = element.querySelector(
-        "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
-      ).innerHTML;
-      const category2 = element.querySelector(
-        "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > span > a",
-      ).innerHTML;
-      const level = element.querySelector(
-        "td.db-table__body--dark.db-table__body--center",
-      ).innerHTML;
+          const parts = link.href.split("/");
+          const id = parts[parts.length - 2];
+          if (!id) return;
 
-      if (
-        id === undefined ||
-        name === undefined ||
-        category2 === undefined ||
-        level === undefined
-      ) {
-        throw new Error("parse error: getItems");
-      }
+          const name = link.textContent?.trim();
+          const category2 = element
+            .querySelector(
+              "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > span > a",
+            )
+            ?.textContent?.trim();
 
-      Items.push({
-        id: id,
-        name: name,
-        category1: option.item.category1,
-        category2: category2,
-        level: parseInt(level),
+          const levelText = element.querySelector(
+            "td.db-table__body--dark.db-table__body--center",
+          )?.textContent;
+
+          const level = Number(levelText);
+
+          if (!name || !category2 || Number.isNaN(level)) return;
+
+          items.push({
+            id,
+            name,
+            category1: option.item.category1!,
+            category2,
+            level,
+          });
+        } catch {
+          // 行単位の失敗は無視
+        }
       });
-    });
 
-    return Items;
-  }, option);
+      return items;
+    }, option);
+  } catch (error) {
+    logError(error, { phase: "getItems" });
+    return []; // ページ単位で継続
+  }
 };
 
 export const engine = async (args: Args) => {
   const browser = await puppeteer.launch(PUPPETEER_LAUNCH_OPTION);
   const page = await browser.newPage();
-  await page.setUserAgent(PUPPETEER_USER_AGENT);
-  await page.setViewport(PUPPETEER_PAGE_VIEWPORT);
 
-  const baseUrl = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=${args.page.category2}`
-  const target = args.page.patch === undefined ? baseUrl : `${baseUrl}&patch=${args.page.patch}`
+  try {
+    await page.setUserAgent(PUPPETEER_USER_AGENT);
+    await page.setViewport(PUPPETEER_PAGE_VIEWPORT);
 
-  await page.goto(target);
-  await wait(500);
+    const baseUrl = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=${args.page.category2}`;
+    const target =
+      args.page.patch === undefined
+        ? baseUrl
+        : `${baseUrl}&patch=${args.page.patch}`;
 
-  const totalCount = await getTotalCount(page);
-  const pageCount = calcTotalPage(totalCount)
-  // const pageCount = 2; // debug 用
+    await page.goto(target);
+    await wait(500);
 
-  console.log("status", { args, totalCount, pageCount, target })
+    const totalCount = await getTotalCount(page);
+    const pageCount = calcTotalPage(totalCount);
 
-  let items: Item[] = [];
-  for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
-    await page.goto(`${target}&page=${pageNumber}`);
-    await wait(1500);
-    const currentItems = await getItems(page, { item: args.item });
-    console.log("page:", pageNumber);
-    items = [...items, ...currentItems];
+    console.log("status", { args, totalCount, pageCount, target });
+
+    const items: Item[] = [];
+
+    for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
+      const pageUrl = `${target}&page=${pageNumber}`;
+      try {
+        await page.goto(pageUrl);
+        await wait(1500);
+
+        const currentItems = await getItems(page, { item: args.item });
+        items.push(...currentItems);
+
+        console.log("page success:", pageNumber);
+      } catch (error) {
+        logError(error, {
+          phase: "page loop",
+          pageNumber,
+          pageUrl,
+        });
+        // continue
+      }
+    }
+
+    await writeJsonToFile(args.output, items);
+  } catch (error) {
+    logError(error, { phase: "engine" });
+    throw error; // CI では失敗させる
+  } finally {
+    await browser.close();
   }
-
-  await writeJsonToFile(args.output, items);
-
-  await browser.close();
 };
