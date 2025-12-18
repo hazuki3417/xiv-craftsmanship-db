@@ -6,8 +6,7 @@ import { engine } from "./scraping.js";
   const args: Args = {
     page: {
       category2: 1,
-      limit: 2,
-      // limit: 113,
+      patch: "latest"
     },
     item: { category1: "武器" },
     output: "datastore/items/1.weapons.json",

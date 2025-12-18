@@ -14,3 +14,6 @@ export const PUPPETEER_PAGE_VIEWPORT = {
   width: 1080,
   height: 1024,
 };
+
+// 1ページあたりの表示件数
+export const PAGE_PAR_ITEM = 50

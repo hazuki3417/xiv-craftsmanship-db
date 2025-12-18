@@ -8,6 +8,22 @@ import {
   PUPPETEER_PAGE_VIEWPORT,
   PUPPETEER_USER_AGENT,
 } from "../constants.js";
+import { calcTotalPage } from "../utils/calc.js";
+
+
+
+/**
+ * アイテムの総件数を取得
+ * @param page
+ * @returns
+ */
+const getTotalCount = async (page: Page): Promise<number> => {
+  return await page.evaluate(async () => {
+    const element = document.querySelector("div.db-filter__row span.total")
+    const total = element.textContent
+    return Number(total)
+  })
+}
 
 /**
  * NOTE: 抽出するもの
@@ -21,6 +37,7 @@ import {
  *
  * NOTE: コードの共通化はやったほうがいいけど、優先度は低いので気が向いたときにやる。
  */
+
 
 type GetItemOption = {
   item: Partial<Item>;
@@ -83,11 +100,21 @@ export const engine = async (args: Args) => {
   await page.setUserAgent(PUPPETEER_USER_AGENT);
   await page.setViewport(PUPPETEER_PAGE_VIEWPORT);
 
+  const baseUrl = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=${args.page.category2}`
+  const target = args.page.patch === undefined ? baseUrl : `${baseUrl}&patch=${args.page.patch}`
+
+  await page.goto(target);
+  await wait(500);
+
+  const totalCount = await getTotalCount(page);
+  const pageCount = calcTotalPage(totalCount)
+  // const pageCount = 2; // debug 用
+
+  console.log("status", { args, totalCount, pageCount, target })
+
   let items: Item[] = [];
-  for (let pageNumber = 1; pageNumber <= args.page.limit; pageNumber++) {
-    // FIX: アイテムとアイテムの間に追加されることがあるのでソートして取得するように修正したほうが良さそう
-    const url = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=${args.page.category2}&page=${pageNumber}`;
-    await page.goto(url);
+  for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
+    await page.goto(`${target}&page=${pageNumber}`);
     await wait(1500);
     const currentItems = await getItems(page, { item: args.item });
     console.log("page:", pageNumber);
