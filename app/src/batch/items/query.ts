@@ -21,14 +21,14 @@ export const createItemData = async (item: Item) => {
         level = EXCLUDED.level;
       `,
       [
-        item.id,    // PRIMARY KEY
-        item.name,  // UNIQUE(name)
+        item.id, // PRIMARY KEY
+        item.name, // UNIQUE(name)
         item.level, // nullable
       ],
     );
 
     await client.query("COMMIT"); // トランザクションをコミット
-    console.log("Users created successfully.");
+    console.log("item created successfully.", item);
   } catch (error) {
     await client.query("ROLLBACK"); // エラーが発生した場合はロールバック
     throw error;

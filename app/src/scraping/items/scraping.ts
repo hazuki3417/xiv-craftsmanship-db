@@ -114,7 +114,7 @@ export const engine = async (args: Args) => {
 
     const baseUrl = `https://jp.finalfantasyxiv.com/lodestone/playguide/db/item/?category2=${args.page.category2}`;
     const target =
-      args.page.patch === undefined
+      args.page.patch === null
         ? baseUrl
         : `${baseUrl}&patch=${args.page.patch}`;
 
