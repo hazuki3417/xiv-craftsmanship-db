@@ -11,7 +11,11 @@ import {
   wait,
   writeJsonToFile,
 } from "./../../utils/index.js";
-import { type Recipe, type Material, type Crystal } from "./../../types/index.js";
+import {
+  type Recipe,
+  type Material,
+  type Crystal,
+} from "./../../types/index.js";
 
 /**
  * アイテムの総件数を取得
