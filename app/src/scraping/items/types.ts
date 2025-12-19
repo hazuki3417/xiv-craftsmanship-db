@@ -1,4 +1,4 @@
-import { Item } from "../types/item.js";
+import { Item } from "./../../types/item.js";
 
 export type Args = {
   page: {

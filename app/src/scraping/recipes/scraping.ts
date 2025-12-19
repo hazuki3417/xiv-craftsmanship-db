@@ -4,14 +4,14 @@ import {
   PUPPETEER_LAUNCH_OPTION,
   PUPPETEER_PAGE_VIEWPORT,
   PUPPETEER_USER_AGENT,
-} from "../constants.js";
+} from "./../../constants.js";
 import {
   calcTotalPage,
   logError,
   wait,
   writeJsonToFile,
-} from "../utils/index.js";
-import { type Recipe, type Material, type Crystal } from "./../types/index.js";
+} from "./../../utils/index.js";
+import { type Recipe, type Material, type Crystal } from "./../../types/index.js";
 
 /**
  * アイテムの総件数を取得
