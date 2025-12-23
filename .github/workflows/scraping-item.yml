@@ -73,7 +73,7 @@ jobs:
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
-        # app配下に出力した成果物を配置
+        # 出力した正解物をapp配下に配置
         with:
           name: build-artifacts
           path: app
