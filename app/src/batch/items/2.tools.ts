@@ -1,5 +1,5 @@
 import { engine } from "./engine.js";
 
 (async () => {
-  await engine("./datastore/items/2.tools.json");
+  await engine("/app/datastore/items/2.tools.json");
 })();

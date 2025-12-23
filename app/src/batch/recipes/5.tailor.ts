@@ -119,7 +119,7 @@ const createRecipeData = async (recipe: Recipe) => {
             tarteg: recipes[i],
           };
           writeJsonToFile(
-            `./datastore/recipes/logs/${recipes[i].id}.json`,
+            `/app/datastore/recipes/logs/${recipes[i].id}.json`,
             log,
           );
         });
