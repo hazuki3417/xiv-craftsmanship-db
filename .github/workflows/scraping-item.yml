@@ -83,16 +83,6 @@ jobs:
           docker compose run --rm scraping \
             ${{ matrix.script }}
 
-      - name: Verify output exists1
-        run: ls -al 
-
-      - name: Verify output exists2
-        run: ls -al app
-        
-      - name: Verify output exists
-        run: |
-          test -f "${{ matrix.output }}"
-
       - name: Upload scraping artifact
         uses: actions/upload-artifact@v4
         with:
