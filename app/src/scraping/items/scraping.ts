@@ -91,8 +91,8 @@ const getItems = async (page: Page, option: GetItemOption): Promise<Item[]> => {
             category2,
             level,
           });
-        } catch {
-          // 行単位の失敗は無視
+        } catch (error) {
+          logError(error, { phase: "getItems" });
         }
       });
 
@@ -100,7 +100,7 @@ const getItems = async (page: Page, option: GetItemOption): Promise<Item[]> => {
     }, option);
   } catch (error) {
     logError(error, { phase: "getItems" });
-    return []; // ページ単位で継続
+    return [];
   }
 };
 
@@ -122,7 +122,8 @@ export const engine = async (args: Args) => {
     await wait(500);
 
     const totalCount = await getTotalCount(page);
-    const pageCount = calcTotalPage(totalCount);
+    // const pageCount = calcTotalPage(totalCount);
+    const pageCount = 2; // debug mode
 
     console.log("status", { args, totalCount, pageCount, target });
 
