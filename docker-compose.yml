@@ -16,6 +16,14 @@ services:
     ports:
       - "5432:5432"
 
+  build:
+    image: node:20-slim
+    profiles: ["manual"]
+    working_dir: /app
+    volumes:
+      - ./app:/app
+    command: ["npm", "run", "build:ci"]
+
   # NOTE: コマンド実行例
   #       docker compose run scraping /app/dist/example/sample.js
   scraping:

@@ -1,4 +1,4 @@
-name: scraping item
+name: scraping items
 
 on:
   workflow_dispatch:
@@ -47,7 +47,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run scraping via docker compose
+      - name: Build
+        run: |
+          docker compose run --rm build
+
+      - name: Run scraping
         run: |
           docker compose run --rm scraping \
             ${{ matrix.script }}

@@ -8,6 +8,7 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "tsc",
+		"build:ci": "npm ci && npm run build",
 		"verify:lint": "biome lint",
 		"format": "biome format --write"
 	},
