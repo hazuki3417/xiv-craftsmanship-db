@@ -11,15 +11,27 @@ services:
       POSTGRES_USER: example
       POSTGRES_PASSWORD: example
       POSTGRES_DB: example
+    networks:
+      - xiv-craftsmanship-db-network
     ports:
       - "5432:5432"
 
+  # NOTE: コマンド実行例
+  #       docker compose run scraping /app/dist/example/sample.js
   scraping:
     image: ghcr.io/puppeteer/puppeteer:latest
+    profiles: ["manual"]
+    networks:
+      - xiv-craftsmanship-db-network
     init: true
     tty: false
     user: "1000:1000"
     volumes:
     - ./app:/app
     working_dir: /app
-    command: ["node", "/app/dist/items/1.weapons.js"]
+    command: ["node"]
+
+
+networks:
+  xiv-craftsmanship-db-network:
+    name: xiv-craftsmanship-db-network

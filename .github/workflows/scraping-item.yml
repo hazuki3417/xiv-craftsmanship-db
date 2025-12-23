@@ -1,0 +1,63 @@
+name: scraping item
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  scraping:
+    name: scraping (${{ matrix.name }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: weapons
+            script: /app/dist/scraping/items/1.weapons.js
+            output: app/datastore/items/1.weapons.json
+
+          - name: tools
+            script: /app/dist/scraping/items/2.tools.js
+            output: app/datastore/items/2.tools.json
+
+          - name: armors
+            script: /app/dist/scraping/items/3.armors.js
+            output: app/datastore/items/3.armors.json
+
+          - name: accessorys
+            script: /app/dist/scraping/items/4.accessorys.js
+            output: app/datastore/items/4.accessorys.json
+
+          - name: medicines
+            script: /app/dist/scraping/items/5.medicines.js
+            output: app/datastore/items/5.medicines.json
+
+          - name: materials
+            script: /app/dist/scraping/items/6.materials.js
+            output: app/datastore/items/6.materials.json
+
+          - name: other
+            script: /app/dist/scraping/items/7.other.js
+            output: app/datastore/items/7.other.json
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run scraping via docker compose
+        run: |
+          docker compose run --rm scraping \
+            ${{ matrix.script }}
+
+      - name: Verify output exists
+        run: |
+          test -f "${{ matrix.output }}"
+
+      - name: Upload scraping artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraping-${{ matrix.name }}
+          path: ${{ matrix.output }}
