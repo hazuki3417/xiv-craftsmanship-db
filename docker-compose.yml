@@ -35,10 +35,10 @@ services:
       - xiv-craftsmanship-db-network
     init: true
     tty: false
-    # user: "1000:1000"
+    user: root
+    working_dir: /app
     volumes:
     - ./app:/app
-    working_dir: /app
     command: ["node"]
 
 
