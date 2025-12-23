@@ -15,6 +15,7 @@
 
 # artifact
 /dist
+/datastore
 
 # production
 /build
