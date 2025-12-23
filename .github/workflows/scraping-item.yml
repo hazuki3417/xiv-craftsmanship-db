@@ -76,6 +76,10 @@ jobs:
           name: build-artifacts
           path: .
 
+      - name: debug
+        run: |
+          ls -al
+
       - name: Run scraping
         run: |
           docker compose run --rm scraping \
