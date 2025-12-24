@@ -14,18 +14,22 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  check:
+  # ------------------------------------------------------------
+  # 1. 変更検知ジョブ（1回だけ実行）
+  # ------------------------------------------------------------
+  detect-changes:
     runs-on: ubuntu-latest
     outputs:
       db: ${{ steps.filter.outputs.db }}
       scraping: ${{ steps.filter.outputs.scraping }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Detect changed paths
-        uses: dorny/paths-filter@v3
         id: filter
+        uses: dorny/paths-filter@v3
         with:
           filters: |
             db:
@@ -35,34 +39,54 @@ jobs:
               - docker/develop/xiv-craftsmanship-scraping/**
               - app/src/**
 
-  deploy:
-    needs: check
+  # ------------------------------------------------------------
+  # 2. ビルド & Push（matrix による並列実行）
+  # ------------------------------------------------------------
+  build-and-push:
+    needs: detect-changes
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
-      packages: write
+      packages: write   # GHCR push に必須
 
     strategy:
       matrix:
         image:
           - name: xiv-craftsmanship-db
             dockerfile: docker/develop/xiv-craftsmanship-db/Dockerfile
-            enabled: ${{ needs.check.outputs.db }}
+            enabled: ${{ needs.detect-changes.outputs.db }}
           - name: xiv-craftsmanship-scraping
             dockerfile: docker/develop/xiv-craftsmanship-scraping/Dockerfile
-            enabled: ${{ needs.check.outputs.scraping }}
-
-    if: matrix.image.enabled == 'true'
+            enabled: ${{ needs.detect-changes.outputs.scraping }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # --------------------------------------------------------
+      # 2-1. 最初の step で「この image をビルドするか」判定
+      # --------------------------------------------------------
+      - name: Decide whether to build
+        id: decide
+        run: |
+          if [ "${{ matrix.image.enabled }}" != "true" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "This image has no relevant changes. Skipping build."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Changes detected. Proceeding with build."
+          fi
+
+      # --------------------------------------------------------
+      # 2-2. 以降の step はすべて skip 判定付き
+      # --------------------------------------------------------
       - name: Set up Docker Buildx
+        if: steps.decide.outputs.skip != 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR
+        if: steps.decide.outputs.skip != 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -70,6 +94,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Docker image
+        if: steps.decide.outputs.skip != 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
