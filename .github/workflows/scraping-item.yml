@@ -6,16 +6,15 @@ on:
   #   branches:
   #     - main
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: xiv-craftsmanship-scraping
+  IMAGE: ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
+
 jobs:
   scraping:
     name: scraping (${{ matrix.name }})
     runs-on: ubuntu-latest
-
-    container:
-      image: ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
     permissions:
       contents: read
@@ -54,13 +53,38 @@ jobs:
             output: app/datastore/items/7.other.json
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # --------------------------------------------------------
+      # 1. GHCR へログイン（pull 用）
+      # --------------------------------------------------------
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run scraping script
+      # --------------------------------------------------------
+      # 2. scraping 用イメージを取得
+      # --------------------------------------------------------
+      - name: Pull scraping image
         run: |
-          node ${{ matrix.script }}
+          docker pull ${{ env.IMAGE }}
 
+      # --------------------------------------------------------
+      # 3. puppeteer コンテナを実行（成果物は workspace へ）
+      # --------------------------------------------------------
+      - name: Run scraping script in container
+        run: |
+          mkdir -p app/datastore/items
+
+          docker run --rm \
+            -v "${{ github.workspace }}/app/datastore:/app/datastore" \
+            ${{ env.IMAGE }} \
+            node ${{ matrix.script }}
+
+      # --------------------------------------------------------
+      # 4. 成果物を artifact としてアップロード
+      # --------------------------------------------------------
       - name: Upload scraping artifact
         uses: actions/upload-artifact@v4
         with:
