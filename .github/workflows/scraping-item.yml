@@ -7,33 +7,19 @@ on:
   #     - main
 
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Build
-        run: |
-          docker compose run --rm build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        # NOTE: dist, node_modulesディレクトリを成果物として出力
-        with:
-          name: build-artifacts
-          path: |
-            app/dist
-            app/node_modules
-          retention-days: 1
-
-
   scraping:
     name: scraping (${{ matrix.name }})
     runs-on: ubuntu-latest
-    needs: build
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    permissions:
+      contents: read
+      packages: read   # GHCR pull 用
 
     strategy:
       fail-fast: false
@@ -41,47 +27,39 @@ jobs:
         include:
           - name: weapons
             script: /app/dist/scraping/items/1.weapons.js
-            output: /app/datastore/items/1.weapons.json
+            output: app/datastore/items/1.weapons.json
 
           - name: tools
             script: /app/dist/scraping/items/2.tools.js
-            output: /app/datastore/items/2.tools.json
+            output: app/datastore/items/2.tools.json
 
           - name: armors
             script: /app/dist/scraping/items/3.armors.js
-            output: /app/datastore/items/3.armors.json
+            output: app/datastore/items/3.armors.json
 
           - name: accessorys
             script: /app/dist/scraping/items/4.accessorys.js
-            output: /app/datastore/items/4.accessorys.json
+            output: app/datastore/items/4.accessorys.json
 
           - name: medicines
             script: /app/dist/scraping/items/5.medicines.js
-            output: /app/datastore/items/5.medicines.json
+            output: app/datastore/items/5.medicines.json
 
           - name: materials
             script: /app/dist/scraping/items/6.materials.js
-            output: /app/datastore/items/6.materials.json
+            output: app/datastore/items/6.materials.json
 
           - name: other
             script: /app/dist/scraping/items/7.other.js
-            output: /app/datastore/items/7.other.json
+            output: app/datastore/items/7.other.json
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        # 出力した正解物をapp配下に配置
-        with:
-          name: build-artifacts
-          path: app
-
-      - name: Run scraping
+      - name: Run scraping script
         run: |
-          docker compose run --rm scraping \
-            ${{ matrix.script }}
+          node ${{ matrix.script }}
 
       - name: Upload scraping artifact
         uses: actions/upload-artifact@v4
