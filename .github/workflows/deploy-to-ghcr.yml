@@ -17,7 +17,7 @@ jobs:
   # ------------------------------------------------------------
   # 1. 変更検知ジョブ（1回だけ実行）
   # ------------------------------------------------------------
-  detect-changes:
+  check:
     runs-on: ubuntu-latest
     outputs:
       db: ${{ steps.filter.outputs.db }}
@@ -42,8 +42,8 @@ jobs:
   # ------------------------------------------------------------
   # 2. ビルド & Push（matrix による並列実行）
   # ------------------------------------------------------------
-  build-and-push:
-    needs: detect-changes
+  deploy:
+    needs: check
     runs-on: ubuntu-latest
 
     permissions:
@@ -55,10 +55,10 @@ jobs:
         image:
           - name: xiv-craftsmanship-db
             dockerfile: docker/develop/xiv-craftsmanship-db/Dockerfile
-            enabled: ${{ needs.detect-changes.outputs.db }}
+            enabled: ${{ needs.check.outputs.db }}
           - name: xiv-craftsmanship-scraping
             dockerfile: docker/develop/xiv-craftsmanship-scraping/Dockerfile
-            enabled: ${{ needs.detect-changes.outputs.scraping }}
+            enabled: ${{ needs.check.outputs.scraping }}
 
     steps:
       - name: Checkout code
