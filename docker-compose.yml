@@ -16,30 +16,21 @@ services:
     ports:
       - "5432:5432"
 
-  build:
-    image: node:20-slim
-    profiles: ["manual"]
-    working_dir: /app
-    volumes:
-      - ./app:/app
-    command: ["npm", "run", "build:ci"]
-
   # NOTE: コマンド実行例
   #       docker compose run scraping /app/dist/example/sample.js
-  # NOTE: docker imageのバージョンを固定
-  #       バージョンが変わるとブラウザのバージョンも代わりexecutablePathもかわるので注意
   scraping:
-    image: ghcr.io/puppeteer/puppeteer:24.33.0
+    build:
+      context: .
+      dockerfile: ./docker/develop/xiv-craftsmanship-scraping/Dockerfile
+    image: xiv-craftsmanship-scraping
     profiles: ["manual"]
     networks:
       - xiv-craftsmanship-db-network
     init: true
     tty: false
     user: root
-    working_dir: /app
     volumes:
     - ./app:/app
-    command: ["node"]
 
 
 networks:

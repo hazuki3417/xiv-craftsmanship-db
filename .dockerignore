@@ -2,3 +2,8 @@
 *
 # 必要なものを任意で追加（image buildの速度に関わるため）
 !data/*
+!app/src/*
+
+!app/package.json
+!app/package-lock.json
+!app/tsconfig.json
