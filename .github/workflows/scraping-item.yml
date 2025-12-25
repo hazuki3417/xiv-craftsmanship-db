@@ -78,6 +78,7 @@ jobs:
           mkdir -p app/datastore/items
 
           docker run --rm \
+            --user root \
             -v "${{ github.workspace }}/app/datastore:/app/datastore" \
             ${{ env.IMAGE }} \
             node ${{ matrix.script }}
@@ -85,7 +86,7 @@ jobs:
       - name: debug
         run: |
           ls -al app/datastore/items
-          
+
       # --------------------------------------------------------
       # 4. 成果物を artifact としてアップロード
       # --------------------------------------------------------
