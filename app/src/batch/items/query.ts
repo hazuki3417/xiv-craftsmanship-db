@@ -1,9 +1,7 @@
 import { type Item } from "./../../types/index.js";
-import { postgresql } from "../../utils/index.js";
+import { PoolClient } from "pg";
 
-export const createItemData = async (item: Item) => {
-  const client = await postgresql.connect(); // クライアントを取得
-
+export const createItemData = async (client: PoolClient, item: Item) => {
   try {
     await client.query("BEGIN"); // トランザクションを開始
 
@@ -32,7 +30,5 @@ export const createItemData = async (item: Item) => {
   } catch (error) {
     await client.query("ROLLBACK"); // エラーが発生した場合はロールバック
     throw error;
-  } finally {
-    client.release(); // クライアントを解放
   }
 };
