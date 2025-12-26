@@ -51,6 +51,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Login to GHCR
+        if: steps.decide.outputs.skip != 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run scraping script
         run: |
           docker compose run --rm scraping node ${{ matrix.script }}
@@ -89,6 +97,14 @@ jobs:
           echo "Placed files:"
           ls -al app/datastore/items
 
+      - name: Login to GHCR
+        if: steps.decide.outputs.skip != 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Start Postgres
         run: |
           docker compose up -d xiv-craftsmanship-db
