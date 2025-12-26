@@ -63,7 +63,7 @@ jobs:
 
       - name: Pull scraping image
         run: |
-          docker pull ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
+          docker compose pull scraping
 
       - name: Run scraping script
         run: |
@@ -93,7 +93,7 @@ jobs:
       - name: Download scraping artifacts
         uses: actions/download-artifact@v4
         with:
-          path: app/datastore/items
+          path: artifacts
 
       - name: Place artifacts into app/datastore/items
         run: |
@@ -123,7 +123,7 @@ jobs:
 
       - name: Pull scraping image
         run: |
-          docker pull ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
+          docker compose pull scraping
 
       - name: Insert items (serial)
         run: |
