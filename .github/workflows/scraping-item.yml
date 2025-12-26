@@ -25,31 +25,31 @@ jobs:
         include:
           - name: weapons
             script: /app/dist/scraping/items/1.weapons.js
-            output: app/datastore/items/1.weapons.ndjson
+            output: 1.weapons.ndjson
 
           - name: tools
             script: /app/dist/scraping/items/2.tools.js
-            output: app/datastore/items/2.tools.ndjson
+            output: 2.tools.ndjson
 
           - name: armors
             script: /app/dist/scraping/items/3.armors.js
-            output: app/datastore/items/3.armors.ndjson
+            output: 3.armors.ndjson
 
           - name: accessorys
             script: /app/dist/scraping/items/4.accessorys.js
-            output: app/datastore/items/4.accessorys.ndjson
+            output: 4.accessorys.ndjson
 
           - name: medicines
             script: /app/dist/scraping/items/5.medicines.js
-            output: app/datastore/items/5.medicines.ndjson
+            output: 5.medicines.ndjson
 
           - name: materials
             script: /app/dist/scraping/items/6.materials.js
-            output: app/datastore/items/6.materials.ndjson
+            output: 6.materials.ndjson
 
           - name: other
             script: /app/dist/scraping/items/7.other.js
-            output: app/datastore/items/7.other.ndjson
+            output: 7.other.ndjson
 
     steps:
       - uses: actions/checkout@v4
@@ -89,16 +89,7 @@ jobs:
       - name: Download scraping artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
-
-      - name: Place artifacts into app/datastore/items
-        run: |
-          mkdir -p app/datastore/items
-
-          find artifacts -name "*.json" -type f -exec cp {} app/datastore/items/ \;
-
-          echo "Placed files:"
-          ls -al app/datastore/items
+          path: app/datastore/items
 
       - name: Login to GHCR
         uses: docker/login-action@v3
