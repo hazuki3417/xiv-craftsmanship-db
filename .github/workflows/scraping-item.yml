@@ -99,7 +99,7 @@ jobs:
         run: |
           mkdir -p app/datastore/items
 
-          find artifacts -name "*.json" -type f -exec cp {} app/datastore/items/ \;
+          find artifacts -name "*.ndjson" -type f -exec cp {} app/datastore/items/ \;
 
           echo "Placed files:"
           ls -al app/datastore/items
