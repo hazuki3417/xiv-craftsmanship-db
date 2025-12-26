@@ -1,9 +1,6 @@
 services:
   xiv-craftsmanship-db:
-    build:
-      context: .
-      dockerfile: ./docker/develop/xiv-craftsmanship-db/Dockerfile
-    image: xiv-craftsmanship-db
+    image: ghcr.io/hazuki3417/xiv-craftsmanship-db:latest
     hostname: xiv-craftsmanship-db
     container_name: xiv-craftsmanship-db
     restart: always
@@ -19,10 +16,7 @@ services:
   # NOTE: コマンド実行例
   #       docker compose run scraping /app/dist/example/sample.js
   scraping:
-    build:
-      context: .
-      dockerfile: ./docker/develop/xiv-craftsmanship-scraping/Dockerfile
-    image: xiv-craftsmanship-scraping
+    image: ghcr.io/hazuki3417/xiv-craftsmanship-scraping:latest
     profiles: ["manual"]
     networks:
       - xiv-craftsmanship-db-network
