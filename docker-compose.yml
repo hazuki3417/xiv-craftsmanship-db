@@ -29,6 +29,8 @@ services:
     init: true
     tty: false
     user: root
+    volumes:
+      - ./app/datastore:/app/datastore
 
 
 networks:
