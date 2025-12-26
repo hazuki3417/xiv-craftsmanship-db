@@ -1,36 +1,30 @@
-import { promises as fs } from "fs";
-import path from "path";
-import { postgresql, wait } from "../../utils/index.js";
+import { postgresql, stdout } from "../../utils/index.js";
 import { type Item } from "../../types/index.js";
 import { createItemData } from "./query.js";
+import fs from "fs";
+import readline from "readline";
 
-export const engine = async (filePath: string) => {
+export const engine = async (path: string) => {
   const client = await postgresql.connect(); // クライアントを取得
   try {
     await client.query("BEGIN"); // トランザクションを開始
 
-    const jsonFilePath = path.join(filePath);
+    const stream = fs.createReadStream(path, "utf8");
+    const rl = readline.createInterface({
+      input: stream,
+      crlfDelay: Infinity,
+    });
 
-    const data = await fs.readFile(jsonFilePath, "utf8");
-    const items = JSON.parse(data) as Item[];
-
-    for (let i = 0; i < items.length; i++) {
-      try {
-        await createItemData(client, items[i]);
-        console.log("created successfully.", items[i]);
-      } catch (error) {
-        const log = {
-          error,
-          target: items[i],
-        };
-        console.error("create error: ", { error, log });
-        throw error;
-      }
+    for await (const line of rl) {
+      if (!line.trim()) continue;
+      const item = JSON.parse(line) as Item; // ← 1 行 = 1 JSON
+      await createItemData(client, item);
+      stdout(`success: ${JSON.stringify(item)}\n`);
     }
     await client.query("COMMIT"); // トランザクションをコミット
   } catch (error) {
     await client.query("ROLLBACK"); // エラーが発生した場合はロールバック
-    console.error("execute error: ", error);
+    stdout(error);
     throw error;
   } finally {
     client.release(); // クライアントを解放
