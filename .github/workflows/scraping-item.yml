@@ -112,18 +112,15 @@ jobs:
         run: |
           set -e
 
-          for script in \
-            1.weapons.ndjson \
-            2.tools.ndjson \
-            3.armors.ndjson \
-            4.accessorys.ndjson \
-            5.medicines.ndjson \
-            6.materials.ndjson \
-            7.other.ndjson
-          do
-            echo "execute $script"
+          echo "Items to import:"
+          ls -al app/datastore/items
 
-            docker compose run --rm scraping "/app/dist/batch/items/main.js" "/app/datastore/items/${script}"
+          for file in app/datastore/items/*.ndjson; do
+            echo "execute $(basename "$file")"
+
+            docker compose run --rm scraping \
+              /app/dist/batch/items/main.js \
+              "/app/datastore/items/$(basename "$file")"
           done
 
       # --------------------------------------------------------
