@@ -28,8 +28,6 @@ services:
       - xiv-craftsmanship-db-network
     init: true
     tty: false
-    volumes:
-    - ./app:/app
 
 
 networks:
