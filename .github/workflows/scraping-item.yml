@@ -61,6 +61,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull scraping image
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
+
       - name: Run scraping script
         run: |
           docker compose run --rm scraping ${{ matrix.script }} > ${{ matrix.output }}
@@ -91,6 +95,15 @@ jobs:
         with:
           path: app/datastore/items
 
+      - name: Place artifacts into app/datastore/items
+        run: |
+          mkdir -p app/datastore/items
+
+          find artifacts -name "*.json" -type f -exec cp {} app/datastore/items/ \;
+
+          echo "Placed files:"
+          ls -al app/datastore/items
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -107,6 +120,10 @@ jobs:
           until docker compose exec -T xiv-craftsmanship-db pg_isready; do
             sleep 1
           done
+
+      - name: Pull scraping image
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
 
       - name: Insert items (serial)
         run: |
