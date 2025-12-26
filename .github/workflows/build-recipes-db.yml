@@ -1,0 +1,201 @@
+name: Build recipes db
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  # ※ dump → commit を行うため、通常は workflow_dispatch 推奨
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  scraping:
+    name: scraping (${{ matrix.name }})
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: carpenter
+            script: /app/dist/scraping/recipes/0.carpenter.js
+            output: 0.carpenter.ndjson
+
+          - name: blacksmith
+            script: /app/dist/scraping/recipes/1.blacksmith.js
+            output: 1.blacksmith.ndjson
+
+          - name: armorer
+            script: /app/dist/scraping/recipes/2.armorer.js
+            output: 2.armorer.ndjson
+
+          - name: goldsmith
+            script: /app/dist/scraping/recipes/3.goldsmith.js
+            output: 3.goldsmith.ndjson
+
+          - name: leatherworker
+            script: /app/dist/scraping/recipes/4.leatherworker.js
+            output: 4.leatherworker.ndjson
+
+          - name: tailor
+            script: /app/dist/scraping/recipes/5.tailor.js
+            output: 5.tailor.ndjson
+
+          - name: alchemist
+            script: /app/dist/scraping/recipes/6.alchemist.js
+            output: 6.alchemist.ndjson
+
+          - name: cook
+            script: /app/dist/scraping/recipes/7.cook.js
+            output: 7.cook.ndjson
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull scraping image
+        run: |
+          docker compose pull scraping
+
+      - name: Run scraping script
+        run: |
+          docker compose run --rm scraping ${{ matrix.script }} > ${{ matrix.output }}
+
+
+      - name: Upload scraping artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraping-${{ matrix.name }}
+          path: ${{ matrix.output }}
+          retention-days: 1
+
+  create:
+    name: import recipes and dump
+    runs-on: ubuntu-latest
+    needs: scraping
+
+    permissions:
+      contents: write   # dump 後の commit 用
+      packages: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # NOTE: Scraping artifact 一括取得
+      - name: Download scraping artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Place artifacts into app/datastore/recipes
+        run: |
+          mkdir -p app/datastore/recipes
+
+          find artifacts -name "*.ndjson" -type f -exec cp {} app/datastore/recipes/ \;
+
+          echo "Placed files:"
+          ls -al app/datastore/recipes
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Start Postgres
+        run: |
+          docker compose up -d xiv-craftsmanship-db
+
+      - name: Wait for Postgres
+        run: |
+          until docker compose exec -T xiv-craftsmanship-db pg_isready; do
+            sleep 1
+          done
+
+      - name: Pull scraping image
+        run: |
+          docker compose pull scraping
+
+      # - name: Insert recipes (serial)
+      #   run: |
+      #     set -e
+
+      #     echo "Items to import:"
+      #     ls -al app/datastore/recipes
+
+      #     for file in app/datastore/recipes/*.ndjson; do
+      #       echo "execute $(basename "$file")"
+
+      #       docker compose run --rm scraping \
+      #         /app/dist/batch/recipes/main.js \
+      #         "/app/datastore/recipes/$(basename "$file")"
+      #     done
+
+      # --------------------------------------------------------
+      # recipes テーブルをダンプ
+      # --------------------------------------------------------
+      - name: Dump recipes table
+        run: |
+          mkdir -p data/initialize/seeder
+
+          docker compose exec -T xiv-craftsmanship-db \
+            pg_dump \
+              -U example \
+              -d example \
+              --data-only \
+              --table=recipes \
+              --column-inserts \
+              --inserts \
+          > data/initialize/seeder/recipes.sql
+
+      # --------------------------------------------------------
+      # item_tree テーブルをダンプ
+      # --------------------------------------------------------
+      - name: Dump item_tree table
+        run: |
+          mkdir -p data/initialize/seeder
+
+          docker compose exec -T xiv-craftsmanship-db \
+            pg_dump \
+              -U example \
+              -d example \
+              --data-only \
+              --table=item_tree \
+              --column-inserts \
+              --inserts \
+          > data/initialize/seeder/item_tree.sql
+
+      - name: Commit and push dump
+        run: |
+          set -e
+
+          if git diff --quiet data/initialize/seeder/recipes.sql; then
+            echo "No changes in recipes.sql"
+            exit 0
+          fi
+
+          if git diff --quiet data/initialize/seeder/item_tree.sql; then
+            echo "No changes in item_tree.sql"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add data/initialize/seeder/recipes.sql
+          git add data/initialize/seeder/item_tree.sql
+          git commit -m "chore(db): update recipes and item_tree seeder"
+          git push
