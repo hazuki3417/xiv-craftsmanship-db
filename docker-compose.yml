@@ -28,6 +28,7 @@ services:
       - xiv-craftsmanship-db-network
     init: true
     tty: false
+    user: root
 
 
 networks:
