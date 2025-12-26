@@ -25,31 +25,31 @@ jobs:
         include:
           - name: weapons
             script: /app/dist/scraping/items/1.weapons.js
-            output: app/datastore/items/1.weapons.json
+            output: app/datastore/items/1.weapons.ndjson
 
           - name: tools
             script: /app/dist/scraping/items/2.tools.js
-            output: app/datastore/items/2.tools.json
+            output: app/datastore/items/2.tools.ndjson
 
           - name: armors
             script: /app/dist/scraping/items/3.armors.js
-            output: app/datastore/items/3.armors.json
+            output: app/datastore/items/3.armors.ndjson
 
           - name: accessorys
             script: /app/dist/scraping/items/4.accessorys.js
-            output: app/datastore/items/4.accessorys.json
+            output: app/datastore/items/4.accessorys.ndjson
 
           - name: medicines
             script: /app/dist/scraping/items/5.medicines.js
-            output: app/datastore/items/5.medicines.json
+            output: app/datastore/items/5.medicines.ndjson
 
           - name: materials
             script: /app/dist/scraping/items/6.materials.js
-            output: app/datastore/items/6.materials.json
+            output: app/datastore/items/6.materials.ndjson
 
           - name: other
             script: /app/dist/scraping/items/7.other.js
-            output: app/datastore/items/7.other.json
+            output: app/datastore/items/7.other.ndjson
 
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +63,7 @@ jobs:
 
       - name: Run scraping script
         run: |
-          docker compose run --rm scraping node ${{ matrix.script }}
+          docker compose run --rm scraping ${{ matrix.script }} > ${{ matrix.output }}
 
 
       - name: Upload scraping artifact
@@ -122,17 +122,17 @@ jobs:
           set -e
 
           for script in \
-            1.weapons.js \
-            2.tools.js \
-            3.armors.js \
-            4.accessorys.js \
-            5.medicines.js \
-            6.materials.js \
-            7.other.js
+            1.weapons.ndjson \
+            2.tools.ndjson \
+            3.armors.ndjson \
+            4.accessorys.ndjson \
+            5.medicines.ndjson \
+            6.materials.ndjson \
+            7.other.ndjson
           do
             echo "execute $script"
 
-            docker compose run --rm scraping "/app/dist/batch/items/${script}"
+            docker compose run --rm scraping "/app/dist/batch/items/main.js" "/app/datastore/items/${script}"
           done
 
       # --------------------------------------------------------
