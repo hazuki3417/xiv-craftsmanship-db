@@ -1,4 +1,4 @@
-name: scraping items
+name: Build items db
 
 on:
   workflow_dispatch:
