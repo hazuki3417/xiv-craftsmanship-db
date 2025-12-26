@@ -3,8 +3,6 @@ import { PoolClient } from "pg";
 
 export const createItemData = async (client: PoolClient, item: Item) => {
   try {
-    await client.query("BEGIN"); // トランザクションを開始
-
     await client.query(
       `
       INSERT INTO public.items (
@@ -24,11 +22,7 @@ export const createItemData = async (client: PoolClient, item: Item) => {
         item.level, // nullable
       ],
     );
-
-    await client.query("COMMIT"); // トランザクションをコミット
-    console.log("item created successfully.", item);
   } catch (error) {
-    await client.query("ROLLBACK"); // エラーが発生した場合はロールバック
     throw error;
   }
 };
