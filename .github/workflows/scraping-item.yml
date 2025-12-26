@@ -5,11 +5,7 @@ on:
   # push:
   #   branches:
   #     - main
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: xiv-craftsmanship-scraping
-  IMAGE: ghcr.io/${{ github.repository_owner }}/xiv-craftsmanship-scraping:latest
+  # ※ dump → commit を行うため、通常は workflow_dispatch 推奨
 
 jobs:
   scraping:
@@ -18,7 +14,7 @@ jobs:
 
     permissions:
       contents: read
-      packages: read   # GHCR pull 用
+      packages: read
 
     strategy:
       fail-fast: false
@@ -53,46 +49,97 @@ jobs:
             output: app/datastore/items/7.other.json
 
     steps:
-      # --------------------------------------------------------
-      # 1. GHCR へログイン（pull 用）
-      # --------------------------------------------------------
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
-      # --------------------------------------------------------
-      # 2. scraping 用イメージを取得
-      # --------------------------------------------------------
-      - name: Pull scraping image
+      - name: Run scraping script
         run: |
-          docker pull ${{ env.IMAGE }}
+          docker compose run --rm scraping node ${{ matrix.script }}
 
-      # --------------------------------------------------------
-      # 3. puppeteer コンテナを実行（成果物は workspace へ）
-      # --------------------------------------------------------
-      - name: Run scraping script in container
-        run: |
-          mkdir -p app/datastore/items
-
-          docker run --rm \
-            --user root \
-            -v "${{ github.workspace }}/app/datastore:/app/datastore" \
-            ${{ env.IMAGE }} \
-            node ${{ matrix.script }}
-
-      - name: debug
+      - name: Debug output
         run: |
           ls -al app/datastore/items
 
-      # --------------------------------------------------------
-      # 4. 成果物を artifact としてアップロード
-      # --------------------------------------------------------
       - name: Upload scraping artifact
         uses: actions/upload-artifact@v4
         with:
           name: scraping-${{ matrix.name }}
           path: ${{ matrix.output }}
           retention-days: 1
+
+  create:
+    name: import items and dump
+    runs-on: ubuntu-latest
+    needs: scraping
+
+    permissions:
+      contents: write   # dump 後の commit 用
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # NOTE: Scraping artifact 一括取得
+      - name: Download scraping artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Start Postgres
+        run: |
+          docker compose up -d xiv-craftsmanship-db
+
+      - name: Wait for Postgres
+        run: |
+          until docker compose exec -T xiv-craftsmanship-db pg_isready; do
+            sleep 1
+          done
+
+      - name: Insert items (serial)
+        run: |
+          set -e
+
+          for script in \
+            1.weapons.js \
+            2.tools.js \
+            3.armors.js \
+            4.accessorys.js \
+            5.medicines.js \
+            6.materials.js \
+            7.other.js
+          do
+            echo "execute $script"
+
+            docker compose run --rm scraping "/app/dist/batch/items/${script}"
+          done
+
+      # --------------------------------------------------------
+      # items テーブルをダンプ
+      # --------------------------------------------------------
+      - name: Dump items table
+        run: |
+          mkdir -p data/initialize/seeder
+
+          docker compose exec -T xiv-craftsmanship-db \
+            pg_dump \
+              -U example \
+              -d example \
+              --data-only \
+              --table=items \
+              --column-inserts \
+              --inserts \
+          > data/initialize/seeder/items.sql
+
+      - name: Commit and push dump
+        run: |
+          set -e
+
+          if git diff --quiet data/initialize/seeder/items.sql; then
+            echo "No changes in items.sql"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add data/initialize/seeder/items.sql
+          git commit -m "chore(db): update items seeder"
+          git push
