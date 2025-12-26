@@ -8,7 +8,6 @@ import { engine } from "./scraping.js";
       category2: 1,
       patch: "latest",
     },
-    output: "datastore/recipes/1.blacksmith.json",
   };
 
   await engine(args);

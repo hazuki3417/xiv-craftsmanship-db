@@ -8,7 +8,6 @@ import { engine } from "./scraping.js";
       category2: 4,
       patch: "latest",
     },
-    output: "datastore/recipes/4.leatherworker.json",
   };
 
   await engine(args);

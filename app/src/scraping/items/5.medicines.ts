@@ -9,7 +9,6 @@ import { engine } from "./scraping.js";
       patch: "latest",
     },
     item: { category1: "薬品・調理品" },
-    output: "/app/datastore/items/5.medicines.json",
   };
 
   await engine(args);

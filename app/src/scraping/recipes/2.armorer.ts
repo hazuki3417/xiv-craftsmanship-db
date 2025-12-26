@@ -8,7 +8,6 @@ import { engine } from "./scraping.js";
       category2: 2,
       patch: "latest",
     },
-    output: "datastore/recipes/2.armorer.json",
   };
 
   await engine(args);

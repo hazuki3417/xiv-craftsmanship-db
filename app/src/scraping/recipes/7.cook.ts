@@ -8,7 +8,6 @@ import { engine } from "./scraping.js";
       category2: 7,
       patch: "latest",
     },
-    output: "datastore/recipes/7.cook.json",
   };
 
   await engine(args);

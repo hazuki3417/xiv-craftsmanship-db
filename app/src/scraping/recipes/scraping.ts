@@ -5,12 +5,7 @@ import {
   PUPPETEER_PAGE_VIEWPORT,
   PUPPETEER_USER_AGENT,
 } from "./../../constants.js";
-import {
-  calcTotalPage,
-  logError,
-  wait,
-  writeJsonToFile,
-} from "./../../utils/index.js";
+import { calcTotalPage, stderr, stdout, wait } from "./../../utils/index.js";
 import {
   type Recipe,
   type Material,
@@ -33,126 +28,141 @@ const getTotalCount = async (page: Page): Promise<number> => {
       return Number(total);
     });
   } catch (error) {
-    logError(error, { phase: "getTotalCount" });
-    throw error; // 致命的なので上位へ
+    throw error;
   }
 };
 
 const getRecipLinks = async (page: Page): Promise<string[]> => {
-  return await page.evaluate(async () => {
-    const elements = document.querySelectorAll("#character > tbody > tr");
+  try {
+    return await page.evaluate(async () => {
+      const elements = document.querySelectorAll("#character > tbody > tr");
 
-    const links: string[] = [];
+      const links: string[] = [];
 
-    elements.forEach((element) => {
-      const href = element
-        .querySelector(
-          "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
-        )
-        .getAttribute("href");
-      links.push(href);
+      elements.forEach((element) => {
+        const href = element
+          .querySelector(
+            "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
+          )
+          .getAttribute("href");
+        links.push(href);
+      });
+      return links;
     });
-    return links;
-  });
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getMaterials = async (page: Page): Promise<Material[]> => {
-  return await page.evaluate(async () => {
-    const elements = document.querySelectorAll(
-      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(3) > div > div.js__material",
-    );
-    const materials: Material[] = [];
+  try {
+    return await page.evaluate(async () => {
+      const elements = document.querySelectorAll(
+        "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(3) > div > div.js__material",
+      );
+      const materials: Material[] = [];
 
-    elements.forEach((element) => {
-      const id = element.getAttribute("data-key");
-      const name = element.getAttribute("data-name");
-      const quantity = element.getAttribute("data-num");
+      elements.forEach((element) => {
+        const id = element.getAttribute("data-key");
+        const name = element.getAttribute("data-name");
+        const quantity = element.getAttribute("data-num");
 
-      if (id === null || name === null || quantity === null) {
-        throw new Error("parse error: getMaterials");
-      }
+        if (id === null || name === null || quantity === null) {
+          throw new Error("parse error: getMaterials");
+        }
 
-      materials.push({
-        id: id,
-        name: name,
-        quantity: parseInt(quantity, 10),
+        materials.push({
+          id: id,
+          name: name,
+          quantity: parseInt(quantity, 10),
+        });
       });
-    });
 
-    return materials;
-  });
+      return materials;
+    });
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getCrystals = async (page: Page): Promise<Crystal[]> => {
-  return await page.evaluate(async () => {
-    const elements = document.querySelectorAll(
-      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(4) > div > div.js__material",
-    );
-    const crystals: Crystal[] = [];
+  try {
+    return await page.evaluate(async () => {
+      const elements = document.querySelectorAll(
+        "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div:nth-child(4) > div > div.js__material",
+      );
+      const crystals: Crystal[] = [];
 
-    elements.forEach((element) => {
-      const id = element.getAttribute("data-key");
-      const name = element.getAttribute("data-name");
-      const quantity = element.getAttribute("data-num");
+      elements.forEach((element) => {
+        const id = element.getAttribute("data-key");
+        const name = element.getAttribute("data-name");
+        const quantity = element.getAttribute("data-num");
 
-      if (id === null || name === null || quantity === null) {
-        throw new Error("parse error: getCrystals");
-      }
+        if (id === null || name === null || quantity === null) {
+          throw new Error("parse error: getCrystals");
+        }
 
-      crystals.push({
-        id: id,
-        name: name,
-        quantity: parseInt(quantity, 10),
+        crystals.push({
+          id: id,
+          name: name,
+          quantity: parseInt(quantity, 10),
+        });
       });
-    });
 
-    return crystals;
-  });
+      return crystals;
+    });
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getRecipe = async (page: Page): Promise<Recipe> => {
-  return await page.evaluate(async () => {
-    const recipe = document.querySelector(
-      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__item__header.clearfix > div.db-view__item__text",
-    );
+  try {
+    return await page.evaluate(async () => {
+      const recipe = document.querySelector(
+        "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__item__header.clearfix > div.db-view__item__text",
+      );
 
-    if (recipe === null) {
-      throw new Error("parse error: getRecipe");
-    }
+      if (recipe === null) {
+        throw new Error("parse error: getRecipe");
+      }
 
-    const nameElement = recipe.querySelector("h2");
-    if (nameElement === null) {
-      throw new Error("parse error: getRecipe");
-    }
-    const name = nameElement.innerText;
+      const nameElement = recipe.querySelector("h2");
+      if (nameElement === null) {
+        throw new Error("parse error: getRecipe");
+      }
+      const name = nameElement.innerText;
 
-    const levelElement = recipe.querySelector(
-      'span[class="db-view__item__text__level__num"]',
-    );
-    if (levelElement === null) {
-      throw new Error("parse error: getRecipe");
-    }
-    const level = levelElement.innerHTML;
+      const levelElement = recipe.querySelector(
+        'span[class="db-view__item__text__level__num"]',
+      );
+      if (levelElement === null) {
+        throw new Error("parse error: getRecipe");
+      }
+      const level = levelElement.innerHTML;
 
-    const piecesElement = document.querySelector(
-      "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div.db-tree__data_header > div > p > span",
-    );
+      const piecesElement = document.querySelector(
+        "#eorzea_db > div.clearfix > div.db_cnts > div > div.recipe_detail.item_detail_box > div.db-view__data > div.db-tree__data_header > div > p > span",
+      );
 
-    if (piecesElement === null) {
-      throw new Error("parse error: getRecipe");
-    }
+      if (piecesElement === null) {
+        throw new Error("parse error: getRecipe");
+      }
 
-    const pieces = piecesElement.innerHTML;
+      const pieces = piecesElement.innerHTML;
 
-    return {
-      id: "",
-      name: name,
-      level: parseInt(level, 10),
-      pieces: parseInt(pieces, 10),
-      materials: [],
-      crystals: [],
-    };
-  });
+      return {
+        id: "",
+        name: name,
+        level: parseInt(level, 10),
+        pieces: parseInt(pieces, 10),
+        materials: [],
+        crystals: [],
+      };
+    });
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const engine = async (args: Args) => {
@@ -175,8 +185,6 @@ export const engine = async (args: Args) => {
     const totalCount = await getTotalCount(page);
     const pageCount = calcTotalPage(totalCount);
 
-    console.log("status", { args, totalCount, pageCount, target });
-
     let links: string[] = [];
 
     for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
@@ -187,19 +195,11 @@ export const engine = async (args: Args) => {
 
         const currentRecipeLinks = await getRecipLinks(page);
         links = [...links, ...currentRecipeLinks];
-
-        console.log("page success[recipe link]:", pageNumber);
       } catch (error) {
-        logError(error, {
-          phase: "page loop",
-          pageNumber,
-          pageUrl,
-        });
-        // continue
+        throw error;
       }
     }
 
-    let recipes: Recipe[] = [];
     for (let i = 0; i < links.length; i++) {
       const link = links[i];
       const url = `https://jp.finalfantasyxiv.com${link}`;
@@ -219,13 +219,10 @@ export const engine = async (args: Args) => {
       recipe.materials = materials;
       recipe.crystals = crystals;
 
-      recipes.push(recipe);
-      console.log("page success[recipe]:", id);
+      stdout(`${JSON.stringify(recipe)}\n`);
     }
-
-    await writeJsonToFile(args.output, recipes);
   } catch (error) {
-    logError(error, { phase: "engine" });
+    stderr(error);
     throw error; // CI では失敗させる
   } finally {
     await browser.close();

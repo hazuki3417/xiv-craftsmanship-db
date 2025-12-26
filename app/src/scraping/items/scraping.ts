@@ -5,13 +5,9 @@ import {
   PUPPETEER_PAGE_VIEWPORT,
   PUPPETEER_USER_AGENT,
 } from "./../../constants.js";
-import {
-  calcTotalPage,
-  logError,
-  wait,
-  writeJsonToFile,
-} from "./../../utils/index.js";
+import { calcTotalPage, wait } from "./../../utils/index.js";
 import { type Item } from "./../../types/index.js";
+import { stderr, stdout } from "../../utils/log.js";
 
 /**
  * アイテムの総件数を取得
@@ -29,8 +25,7 @@ const getTotalCount = async (page: Page): Promise<number> => {
       return Number(total);
     });
   } catch (error) {
-    logError(error, { phase: "getTotalCount" });
-    throw error; // 致命的なので上位へ
+    throw error;
   }
 };
 
@@ -47,13 +42,16 @@ const getTotalCount = async (page: Page): Promise<number> => {
  * NOTE: コードの共通化はやったほうがいいけど、優先度は低いので気が向いたときにやる。
  */
 
-type GetItemOption = {
+type GetItemsOption = {
   item: Partial<Item>;
 };
 
-const getItems = async (page: Page, option: GetItemOption): Promise<Item[]> => {
+const getItems = async (
+  page: Page,
+  option: GetItemsOption,
+): Promise<Item[]> => {
   try {
-    return await page.evaluate((option: GetItemOption) => {
+    return await page.evaluate((option: GetItemsOption) => {
       const elements = document.querySelectorAll("#character > tbody > tr");
       const items: Item[] = [];
 
@@ -84,23 +82,25 @@ const getItems = async (page: Page, option: GetItemOption): Promise<Item[]> => {
 
           if (!name || !category2 || Number.isNaN(level)) return;
 
-          items.push({
+          const item = {
             id,
             name,
             category1: option.item.category1!,
             category2,
             level,
-          });
+          };
+          // NOTE: exposeFunctionで登録した関数を呼び出す
+          // @ts-ignore
+          window.stdout(item);
         } catch (error) {
-          logError(error, { phase: "getItems" });
+          throw error;
         }
       });
 
       return items;
     }, option);
   } catch (error) {
-    logError(error, { phase: "getItems" });
-    return [];
+    throw error;
   }
 };
 
@@ -109,6 +109,10 @@ export const engine = async (args: Args) => {
   const page = await browser.newPage();
 
   try {
+    await page.exposeFunction("stdout", (item: Item) => {
+      stdout(`${JSON.stringify(item)}\n`);
+    });
+
     await page.setUserAgent(PUPPETEER_USER_AGENT);
     await page.setViewport(PUPPETEER_PAGE_VIEWPORT);
 
@@ -125,33 +129,19 @@ export const engine = async (args: Args) => {
     // const pageCount = calcTotalPage(totalCount);
     const pageCount = 2; // debug mode
 
-    console.log("status", { args, totalCount, pageCount, target });
-
-    const items: Item[] = [];
-
     for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
       const pageUrl = `${target}&page=${pageNumber}`;
       try {
         await page.goto(pageUrl);
         await wait(1500);
 
-        const currentItems = await getItems(page, { item: args.item });
-        items.push(...currentItems);
-
-        console.log("page success:", pageNumber);
+        await getItems(page, { item: args.item });
       } catch (error) {
-        logError(error, {
-          phase: "page loop",
-          pageNumber,
-          pageUrl,
-        });
-        // continue
+        throw error;
       }
     }
-
-    await writeJsonToFile(args.output, items);
   } catch (error) {
-    logError(error, { phase: "engine" });
+    stderr(error);
     throw error; // CI では失敗させる
   } finally {
     await browser.close();

@@ -9,7 +9,6 @@ import { engine } from "./scraping.js";
       patch: "latest",
     },
     item: { category1: "防具" },
-    output: "/app/datastore/items/3.armors.json",
   };
 
   await engine(args);
