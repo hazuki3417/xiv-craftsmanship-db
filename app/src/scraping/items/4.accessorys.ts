@@ -7,7 +7,7 @@ import { stderr } from "../../utils/index.js";
   const args: Args = {
     page: {
       category2: 4,
-      patch: "latest",
+      patch: "7.1",
     },
     item: { category1: "アクセサリ" },
   };
