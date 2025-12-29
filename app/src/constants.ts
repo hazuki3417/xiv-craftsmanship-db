@@ -54,3 +54,39 @@ export const MAP_ITEM_CATEGORY2 = {
     label: "その他",
   },
 } as const;
+
+// webサイト上の大分類とID・ラベルのマッピング
+export const MAP_RECIPE_CATEGORY2 = {
+  carpenter: {
+    id: 0,
+    label: "木工師",
+  },
+  blacksmith: {
+    id: 1,
+    label: "鍛冶師",
+  },
+  armorer: {
+    id: 2,
+    label: "甲冑師",
+  },
+  goldsmith: {
+    id: 3,
+    label: "彫金師",
+  },
+  leatherworker: {
+    id: 4,
+    label: "皮細工師",
+  },
+  tailor: {
+    id: 5,
+    label: "裁縫師",
+  },
+  alchemist: {
+    id: 6,
+    label: "錬金術師",
+  },
+  cook: {
+    id: 7,
+    label: "調理師",
+  },
+} as const;

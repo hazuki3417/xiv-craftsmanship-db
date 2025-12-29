@@ -1,5 +1,7 @@
 import { engine } from "./engine.js";
 import { stderr } from "../../utils/index.js";
+import { MAP_RECIPE_CATEGORY2 } from "../../constants.js";
+import { RecipeCategory2 } from "../../types/index.js";
 
 const [, , path, job] = process.argv;
 
@@ -16,8 +18,14 @@ if (!job) {
 }
 
 (async () => {
+  if (!Object.hasOwn(MAP_RECIPE_CATEGORY2, job)) {
+    stderr(`ERROR: invalid job "${job}"\n`);
+    process.exit(1);
+  }
+
   try {
-    await engine({ path, option: { job } });
+    const category2 = MAP_RECIPE_CATEGORY2[job as RecipeCategory2];
+    await engine({ path, option: { job: category2.label } });
   } catch (error) {
     stderr(error);
     process.exit(1);

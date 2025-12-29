@@ -5,7 +5,7 @@ import {
   PUPPETEER_PAGE_VIEWPORT,
   PUPPETEER_USER_AGENT,
 } from "./../../constants.js";
-import { calcTotalPage, stderr, stdout, wait } from "./../../utils/index.js";
+import { calcTotalPage, stdout, wait } from "./../../utils/index.js";
 import {
   type Recipe,
   type Material,

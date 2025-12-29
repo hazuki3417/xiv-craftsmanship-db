@@ -1,3 +1,7 @@
+import { MAP_RECIPE_CATEGORY2 } from "../constants.js";
+
+export type RecipeCategory2 = keyof typeof MAP_RECIPE_CATEGORY2;
+
 /**
  * スクレイピングして得た情報をまとめるデータモデル
  */
