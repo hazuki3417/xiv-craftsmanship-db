@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  PATHC: "7.1"
+  PATCH: "7.1"
 
 jobs:
   scraping:
