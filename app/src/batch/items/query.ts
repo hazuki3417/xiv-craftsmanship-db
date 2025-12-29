@@ -1,7 +1,13 @@
 import { type Item } from "./../../types/index.js";
 import { PoolClient } from "pg";
 
-export const createItemData = async (client: PoolClient, item: Item) => {
+export interface CreateItemDataArgs {
+  client: PoolClient;
+  item: Item;
+}
+
+export const createItemData = async (args: CreateItemDataArgs) => {
+  const { client, item } = args;
   try {
     await client.query(
       `

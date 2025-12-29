@@ -222,7 +222,6 @@ export const engine = async (args: Args) => {
       stdout(`${JSON.stringify(recipe)}\n`);
     }
   } catch (error) {
-    stderr(error);
     throw error; // CI では失敗させる
   } finally {
     await browser.close();

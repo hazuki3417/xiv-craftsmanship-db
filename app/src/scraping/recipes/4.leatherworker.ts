@@ -1,5 +1,6 @@
 import { Args } from "./types.js";
 import { engine } from "./scraping.js";
+import { stderr } from "../../utils/index.js";
 
 // main function
 (async () => {
@@ -10,5 +11,10 @@ import { engine } from "./scraping.js";
     },
   };
 
-  await engine(args);
+  try {
+    await engine(args);
+  } catch (error) {
+    stderr(error);
+    process.exit(1);
+  }
 })();

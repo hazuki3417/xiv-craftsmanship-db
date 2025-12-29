@@ -10,5 +10,10 @@ if (!path) {
 }
 
 (async () => {
-  await engine(path);
+  try {
+    await engine({ path });
+  } catch (error) {
+    stderr(error);
+    process.exit(1);
+  }
 })();

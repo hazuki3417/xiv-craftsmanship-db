@@ -1,28 +1,32 @@
 import { type Recipe } from "./../../types/index.js";
-import { postgresql } from "../../utils/index.js";
+import { PoolClient } from "pg";
 
-export const createRecipeData = async (recipe: Recipe) => {
-  const client = await postgresql.connect(); // クライアントを取得
+export interface CreateRecipeDataArgs {
+  client: PoolClient;
+  recipe: Recipe;
+  option: {
+    job: string;
+  };
+}
 
+export const createRecipeData = async (args: CreateRecipeDataArgs) => {
+  const { client, recipe, option } = args;
   try {
-    await client.query("BEGIN"); // トランザクションを開始
-
-    const target = await postgresql.query<{
+    const target = await client.query<{
       id: string;
       name: string;
       level: number;
     }>("SELECT * FROM items WHERE name = $1", [recipe.name]);
 
     if (target.rowCount === 0) {
-      throw new Error("Item not found");
+      throw new Error(`Item not found: ${recipe.name}`);
     }
 
     const item = target.rows[0];
 
-    const job = "木工師";
     await client.query(
       `INSERT INTO public.recipes(id, item_id, "level", pieces, job)VALUES($1, $2, $3, $4, $5);`,
-      [recipe.id, item.id, recipe.level, recipe.pieces, job],
+      [recipe.id, item.id, recipe.level, recipe.pieces, option.job],
     );
 
     await recipe.crystals.forEach(async (crystal) => {
@@ -38,13 +42,7 @@ export const createRecipeData = async (recipe: Recipe) => {
         [recipe.id, item.id, material.id, material.quantity, "material"],
       );
     });
-
-    await client.query("COMMIT"); // トランザクションをコミット
-    console.log("Users created successfully.");
   } catch (error) {
-    await client.query("ROLLBACK"); // エラーが発生した場合はロールバック
     throw error;
-  } finally {
-    client.release(); // クライアントを解放
   }
 };

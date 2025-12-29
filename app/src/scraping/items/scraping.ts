@@ -80,8 +80,6 @@ const getItems = async (
 
           const level = Number(levelText);
 
-          if (!name || !category2 || Number.isNaN(level)) return;
-
           const item = {
             id,
             name,
@@ -126,8 +124,7 @@ export const engine = async (args: Args) => {
     await wait(500);
 
     const totalCount = await getTotalCount(page);
-    // const pageCount = calcTotalPage(totalCount);
-    const pageCount = 2; // debug mode
+    const pageCount = calcTotalPage(totalCount);
 
     for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
       const pageUrl = `${target}&page=${pageNumber}`;
@@ -141,7 +138,6 @@ export const engine = async (args: Args) => {
       }
     }
   } catch (error) {
-    stderr(error);
     throw error; // CI では失敗させる
   } finally {
     await browser.close();

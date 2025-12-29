@@ -1,5 +1,6 @@
 import { Args } from "./types.js";
 import { engine } from "./scraping.js";
+import { stderr } from "../../utils/index.js";
 
 // main function
 (async () => {
@@ -11,5 +12,10 @@ import { engine } from "./scraping.js";
     item: { category1: "素材" },
   };
 
-  await engine(args);
+  try {
+    await engine(args);
+  } catch (error) {
+    stderr(error);
+    process.exit(1);
+  }
 })();
