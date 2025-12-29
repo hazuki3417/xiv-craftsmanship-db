@@ -6,5 +6,5 @@ export type Item = {
   name: string;
   category1: string;
   category2: string;
-  level: number;
+  level: number | null;
 };

@@ -21,10 +21,10 @@ const getTotalCount = async (page: Page): Promise<number> => {
   try {
     return await page.evaluate(async () => {
       const element = document.querySelector("div.db-filter__row span.total");
-      const total = element.textContent;
       if (!element?.textContent) {
         throw new Error("total count element not found");
       }
+      const total = element.textContent;
       return Number(total);
     });
   } catch (error) {
@@ -38,13 +38,15 @@ const getRecipLinks = async (page: Page): Promise<string[]> => {
       const elements = document.querySelectorAll("#character > tbody > tr");
 
       const links: string[] = [];
-
       elements.forEach((element) => {
         const href = element
-          .querySelector(
+          ?.querySelector(
             "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
           )
-          .getAttribute("href");
+          ?.getAttribute("href");
+        if (!href) {
+          throw new Error("parse error: getRecipLinks");
+        }
         links.push(href);
       });
       return links;

@@ -18,10 +18,10 @@ const getTotalCount = async (page: Page): Promise<number> => {
   try {
     return await page.evaluate(async () => {
       const element = document.querySelector("div.db-filter__row span.total");
-      const total = element.textContent;
       if (!element?.textContent) {
         throw new Error("total count element not found");
       }
+      const total = element.textContent;
       return Number(total);
     });
   } catch (error) {
