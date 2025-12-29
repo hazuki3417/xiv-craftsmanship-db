@@ -123,8 +123,10 @@ jobs:
       - name: Wait for Postgres
         run: |
           until docker compose exec -T xiv-craftsmanship-db pg_isready; do
-            sleep 1
+            sleep 180
           done
+
+        # TODO: seeder実行完了を表現するテーブルを追加しそのテーブルに対してクエリーを発行して終了を検知するように変更する
 
       - name: Pull scraping image
         run: |
@@ -138,11 +140,17 @@ jobs:
           ls -al app/datastore/recipes
 
           for file in app/datastore/recipes/*.ndjson; do
-            echo "execute $(basename "$file")"
+            filename="$(basename "$file")"
+
+            job="${filename#*.}"
+            job="${job%%.*}"
+
+            echo "execute $filename (job=$job)"
 
             docker compose run --rm scraping \
               /app/dist/batch/recipes/main.js \
-              "/app/datastore/recipes/$(basename "$file")"
+              "/app/datastore/recipes/$filename" \
+              "$job"
           done
 
       # --------------------------------------------------------
