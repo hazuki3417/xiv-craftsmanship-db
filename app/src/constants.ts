@@ -7,7 +7,12 @@ export const PUPPETEER_LAUNCH_OPTION = {
   headless: true,
   executablePath:
     "/home/pptruser/.cache/puppeteer/chrome/linux-143.0.7499.42/chrome-linux64/chrome",
-  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--ignore-certificate-errors",
+    "--disable-dev-shm-usage",
+  ],
 };
 
 export const PUPPETEER_PAGE_VIEWPORT = {
@@ -17,3 +22,35 @@ export const PUPPETEER_PAGE_VIEWPORT = {
 
 // 1ページあたりの表示件数
 export const PAGE_PAR_ITEM = 50;
+
+// webサイト上の大分類とID・ラベルのマッピング
+export const MAP_ITEM_CATEGORY2 = {
+  weapons: {
+    id: 1,
+    label: "武器",
+  },
+  tools: {
+    id: 2,
+    label: "道具",
+  },
+  armors: {
+    id: 3,
+    label: "防具",
+  },
+  accessorys: {
+    id: 4,
+    label: "アクセサリ",
+  },
+  medicines: {
+    id: 5,
+    label: "薬品・調理品",
+  },
+  materials: {
+    id: 6,
+    label: "素材",
+  },
+  other: {
+    id: 7,
+    label: "その他",
+  },
+} as const;

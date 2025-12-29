@@ -7,7 +7,7 @@ import {
 } from "./../../constants.js";
 import { calcTotalPage, wait } from "./../../utils/index.js";
 import { type Item } from "./../../types/index.js";
-import { stderr, stdout } from "../../utils/log.js";
+import { stdout } from "../../utils/log.js";
 
 /**
  * アイテムの総件数を取得
@@ -33,58 +33,42 @@ const getTotalCount = async (page: Page): Promise<number> => {
  * NOTE: 抽出するもの
  * - id
  * - name
- * - category2: 武器・道具・防具などの大分類。idなどではなくそのままの文字列を取得。
- * - category3: 片手剣、両手剣、盾などの小分類。idなどではなくそのままの文字列を取得。
  * - level: レベル
- *
- * 件数が多いため、category2を1セットとして扱い、pageをループして取得する。
- *
- * NOTE: コードの共通化はやったほうがいいけど、優先度は低いので気が向いたときにやる。
  */
-
-type GetItemsOption = {
-  item: Partial<Item>;
-};
-
-const getItems = async (
-  page: Page,
-  option: GetItemsOption,
-): Promise<Item[]> => {
+const getItems = async (page: Page): Promise<Item[]> => {
   try {
-    return await page.evaluate((option: GetItemsOption) => {
+    return await page.evaluate(() => {
       const elements = document.querySelectorAll("#character > tbody > tr");
       const items: Item[] = [];
 
       elements.forEach((element) => {
         try {
-          const link = element.querySelector(
-            "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > a",
+          const target = element.querySelector(
+            "td.db-table__body--light > div > a",
           ) as HTMLAnchorElement | null;
+          if (!target) {
+            throw new Error("target element not found");
+          }
 
-          if (!link?.href) return;
-
-          const parts = link.href.split("/");
+          const parts = target.href.split("/");
           const id = parts[parts.length - 2];
-          if (!id) return;
+          if (!id) {
+            throw new Error("id not found");
+          }
 
-          const name = link.textContent?.trim();
-          const category2 = element
-            .querySelector(
-              "td.db-table__body--light.latest_patch__major__item > div.db-table__link_txt > span > a",
-            )
-            ?.textContent?.trim();
+          const name = target.textContent;
+          if (!name) {
+            throw new Error("name not found");
+          }
 
           const levelText = element.querySelector(
             "td.db-table__body--dark.db-table__body--center",
           )?.textContent;
-
           const level = Number(levelText);
 
-          const item = {
+          const item: Item = {
             id,
             name,
-            category1: option.item.category1!,
-            category2,
             level,
           };
           // NOTE: exposeFunctionで登録した関数を呼び出す
@@ -96,7 +80,7 @@ const getItems = async (
       });
 
       return items;
-    }, option);
+    });
   } catch (error) {
     throw error;
   }
@@ -132,7 +116,7 @@ export const engine = async (args: Args) => {
         await page.goto(pageUrl);
         await wait(1500);
 
-        await getItems(page, { item: args.item });
+        await getItems(page);
       } catch (error) {
         throw error;
       }
