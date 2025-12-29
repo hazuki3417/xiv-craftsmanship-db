@@ -9,6 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  PATHC: "7.1"
 
 jobs:
   scraping:
@@ -24,31 +25,31 @@ jobs:
       matrix:
         include:
           - name: weapons
-            script: /app/dist/scraping/items/1.weapons.js
+            type: weapons
             output: 1.weapons.ndjson
 
           - name: tools
-            script: /app/dist/scraping/items/2.tools.js
+            type: tools
             output: 2.tools.ndjson
 
           - name: armors
-            script: /app/dist/scraping/items/3.armors.js
+            type: armors
             output: 3.armors.ndjson
 
           - name: accessorys
-            script: /app/dist/scraping/items/4.accessorys.js
+            type: accessorys
             output: 4.accessorys.ndjson
 
           - name: medicines
-            script: /app/dist/scraping/items/5.medicines.js
+            type: medicines
             output: 5.medicines.ndjson
 
           - name: materials
-            script: /app/dist/scraping/items/6.materials.js
+            type: materials
             output: 6.materials.ndjson
 
           - name: other
-            script: /app/dist/scraping/items/7.other.js
+            type: other
             output: 7.other.ndjson
 
     steps:
@@ -67,7 +68,7 @@ jobs:
 
       - name: Run scraping script
         run: |
-          docker compose run --rm scraping ${{ matrix.script }} > ${{ matrix.output }}
+          docker compose run --rm scraping /app/dist/scraping/items/main.js ${{ matrix.type }} ${{ env.PATCH }} > ${{ matrix.output }}
 
 
       - name: Upload scraping artifact

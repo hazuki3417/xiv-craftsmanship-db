@@ -7,13 +7,13 @@ import { MAP_RECIPE_CATEGORY2 } from "../../constants.js";
 const [, , job, patch] = process.argv;
 
 if (!job) {
-  stderr("ERROR: output job is required\n");
+  stderr("ERROR: job is required\n");
   stderr("Usage: node main.js <job>\n");
   process.exit(1);
 }
 
 if (!patch) {
-  stderr("ERROR: output patch is required\n");
+  stderr("ERROR: patch is required\n");
   stderr("Usage: node main.js <patch>\n");
   process.exit(1);
 }

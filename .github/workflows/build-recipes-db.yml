@@ -9,6 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  PATHC: "7.1"
 
 jobs:
   scraping:
@@ -24,35 +25,35 @@ jobs:
       matrix:
         include:
           - name: carpenter
-            script: /app/dist/scraping/recipes/0.carpenter.js
+            job: carpenter
             output: 0.carpenter.ndjson
 
           - name: blacksmith
-            script: /app/dist/scraping/recipes/1.blacksmith.js
+            job: blacksmith
             output: 1.blacksmith.ndjson
 
           - name: armorer
-            script: /app/dist/scraping/recipes/2.armorer.js
+            job: armorer
             output: 2.armorer.ndjson
 
           - name: goldsmith
-            script: /app/dist/scraping/recipes/3.goldsmith.js
+            job: goldsmith
             output: 3.goldsmith.ndjson
 
           - name: leatherworker
-            script: /app/dist/scraping/recipes/4.leatherworker.js
+            job: leatherworker
             output: 4.leatherworker.ndjson
 
           - name: tailor
-            script: /app/dist/scraping/recipes/5.tailor.js
+            job: tailor
             output: 5.tailor.ndjson
 
           - name: alchemist
-            script: /app/dist/scraping/recipes/6.alchemist.js
+            job: alchemist
             output: 6.alchemist.ndjson
 
           - name: cook
-            script: /app/dist/scraping/recipes/7.cook.js
+            job: cook
             output: 7.cook.ndjson
 
     steps:
@@ -71,7 +72,7 @@ jobs:
 
       - name: Run scraping script
         run: |
-          docker compose run --rm scraping ${{ matrix.script }} > ${{ matrix.output }}
+          docker compose run --rm scraping /app/dist/scraping/recipes/main.js ${{ matrix.job }} ${{ env.PATCH }} > ${{ matrix.output }}
 
 
       - name: Upload scraping artifact
@@ -129,20 +130,20 @@ jobs:
         run: |
           docker compose pull scraping
 
-      # - name: Insert recipes (serial)
-      #   run: |
-      #     set -e
+      - name: Insert recipes (serial)
+        run: |
+          set -e
 
-      #     echo "Items to import:"
-      #     ls -al app/datastore/recipes
+          echo "Items to import:"
+          ls -al app/datastore/recipes
 
-      #     for file in app/datastore/recipes/*.ndjson; do
-      #       echo "execute $(basename "$file")"
+          for file in app/datastore/recipes/*.ndjson; do
+            echo "execute $(basename "$file")"
 
-      #       docker compose run --rm scraping \
-      #         /app/dist/batch/recipes/main.js \
-      #         "/app/datastore/recipes/$(basename "$file")"
-      #     done
+            docker compose run --rm scraping \
+              /app/dist/batch/recipes/main.js \
+              "/app/datastore/recipes/$(basename "$file")"
+          done
 
       # --------------------------------------------------------
       # recipes テーブルをダンプ

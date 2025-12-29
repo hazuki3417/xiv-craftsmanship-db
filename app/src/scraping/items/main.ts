@@ -7,13 +7,13 @@ import { MAP_ITEM_CATEGORY2 } from "../../constants.js";
 const [, , type, patch] = process.argv;
 
 if (!type) {
-  stderr("ERROR: output type is required\n");
+  stderr("ERROR: type is required\n");
   stderr("Usage: node main.js <type>\n");
   process.exit(1);
 }
 
 if (!patch) {
-  stderr("ERROR: output patch is required\n");
+  stderr("ERROR: patch is required\n");
   stderr("Usage: node main.js <patch>\n");
   process.exit(1);
 }
