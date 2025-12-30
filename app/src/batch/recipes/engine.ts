@@ -23,7 +23,13 @@ export const engine = async (args: EngineArgs) => {
 
     for await (const line of rl) {
       if (!line.trim()) continue;
-      const recipe = JSON.parse(line) as Recipe; // ← 1 行 = 1 JSON
+      let recipe: Recipe;
+      try {
+        recipe = JSON.parse(line) as Recipe;
+      } catch (error) {
+        stderr(`error: parse error. ${line}\n`);
+        throw error;
+      }
       await createRecipeData({ client, recipe, option });
       stdout(`success: ${JSON.stringify(recipe)}\n`);
     }

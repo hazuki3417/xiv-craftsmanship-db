@@ -53,6 +53,10 @@ export const MAP_ITEM_CATEGORY2 = {
     id: 7,
     label: "その他",
   },
+  cc: {
+    id: 99, // 使用しないID
+    label: "カンパニー製作工程",
+  },
 } as const;
 
 // webサイト上の大分類とID・ラベルのマッピング
@@ -88,5 +92,9 @@ export const MAP_RECIPE_CATEGORY2 = {
   cook: {
     id: 7,
     label: "調理師",
+  },
+  cc: {
+    id: 99, // 使用しないID
+    label: "カンパニー製作",
   },
 } as const;

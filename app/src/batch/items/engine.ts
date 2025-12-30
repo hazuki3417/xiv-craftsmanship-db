@@ -22,7 +22,13 @@ export const engine = async (args: EngineArgs) => {
 
     for await (const line of rl) {
       if (!line.trim()) continue;
-      const item = JSON.parse(line) as Item; // ← 1 行 = 1 JSON
+      let item = JSON.parse(line) as Item; // ← 1 行 = 1 JSON
+      try {
+        item = JSON.parse(line) as Item;
+      } catch (error) {
+        stderr(`error: parse error. ${line}\n`);
+        throw error;
+      }
       await createItemData({ client, item });
       stdout(`success: ${JSON.stringify(item)}\n`);
     }

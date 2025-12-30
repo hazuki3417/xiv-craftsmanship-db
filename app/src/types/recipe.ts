@@ -8,7 +8,7 @@ export type RecipeCategory2 = keyof typeof MAP_RECIPE_CATEGORY2;
 export type Recipe = {
   id: string;
   name: string;
-  level: number;
+  level: number | null;
   pieces: number; // 完成個数
   materials: Material[];
   crystals: Crystal[];
