@@ -163,7 +163,7 @@ COMMENT ON COLUMN public.items.level IS 'アイテムレベル（IL）';
 CREATE TABLE public.recipes (
     id text NOT NULL,
     item_id text NOT NULL,
-    level integer DEFAULT 1 NOT NULL,
+    level integer DEFAULT 1,
     pieces integer DEFAULT 1 NOT NULL,
     job text NOT NULL,
     CONSTRAINT check_positive_level_number CHECK ((level > 0)),
@@ -325,6 +325,14 @@ ALTER TABLE ONLY public.items
 
 ALTER TABLE ONLY public.recipes
     ADD CONSTRAINT recipes_pk PRIMARY KEY (id);
+
+
+--
+-- Name: recipes recipes_unique; Type: CONSTRAINT; Schema: public; Owner: example
+--
+
+ALTER TABLE ONLY public.recipes
+    ADD CONSTRAINT recipes_unique UNIQUE (item_id, job);
 
 
 --
