@@ -1,0 +1,3 @@
+-- 最終処理
+REFRESH MATERIALIZED VIEW crafts;
+
