@@ -27,5 +27,5 @@ docker compose exec xiv-craftsmanship-db pg_dump -U example -d example --schema-
 データセットは行数が多くなることが想定されるため、テーブル単位で出力します。
 
 ```sh
-docker compose run --rm xiv-craftsmanship-db pg_dump -U example -d example -t {table-name} --data-only > {table-name}.sql
+docker compose run --rm xiv-craftsmanship-db pg_dump -U example -d example -t {table-name} --data-only --column-inserts --inserts > {table-name}.sql
 ```
