@@ -15,7 +15,8 @@
 
 # artifact
 /dist
-/datastore
+/datastore/items/*.*
+/datastore/recipes/*.*
 
 # production
 /build
